@@ -8,19 +8,36 @@ const canvas = document.querySelector('canvas.webgl')
 // Scene
 const scene = new THREE.Scene()
 
-//Sky
 
+// Sky
 const loader = new THREE.CubeTextureLoader();
 const skyboxTexture = loader.load([
-    'public/right.png', //right
-    'public/left.png', //left
-    'public/top.png', //top
-    'public/bot.png', //bottom
-    'public/front.png', //front
-    'public/back.png' //back
-]);
 
+    'public/skybox_px.jpg', //left, correct
+    'public/skybox_nx.jpg', //right, correct 
+    'public/skybox_nz.jpg', //top, correct
+    'public/skybox_pz.jpg', //bottom, correct
+    'public/skybox_py.jpg',  //back, correct
+    'public/skybox_ny.jpg' //front, correct
+
+]);
 scene.background = skyboxTexture;
+
+
+// Ground Terrain
+const groundGeometry = new THREE.PlaneGeometry(50, 50); // Large plane for terrain
+const groundMaterial = new THREE.MeshStandardMaterial({ color: 0x556b2f }); // Grass-green
+const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+ground.rotation.x = -Math.PI / 2; // Rotate to lie flat
+ground.receiveShadow = true; // Enable shadow casting
+ground.position.set(0, -1, 0); // Place ground slightly below the camera
+scene.add(ground);
+
+
+// Light
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(10, 10, 10);
+scene.add(light);
 
 
 // Objects
@@ -29,16 +46,19 @@ const material = new THREE.MeshBasicMaterial({color: 0xff0000})
 const mesh = new THREE.Mesh(geometry, material)
 scene.add(mesh)
 
+
 // Sizes
 const sizes = {
     width: 800,
     height: 600
 }
 
+
 // Camera 
 const camera = new THREE.PerspectiveCamera(75, sizes.width/sizes.height)
 camera.position.z = 3
 scene.add(camera)
+
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({
@@ -47,10 +67,12 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(sizes.width, sizes.height)
 renderer.render(scene, camera)
 
+
 // Movement Variables
 const moveSpeed = 0.1;    // Speed of movement
 const rotationSpeed = 0.05; // Speed of rotation
 const keys = {};
+
 
 // Track Key States
 document.addEventListener('keydown', (event) => {
@@ -59,6 +81,7 @@ document.addEventListener('keydown', (event) => {
 document.addEventListener('keyup', (event) => {
     keys[event.key] = false;
 });
+
 
 // Calculate Movement
 const moveCamera = () => {
@@ -90,7 +113,18 @@ const moveCamera = () => {
     if (keys['e']) {
         camera.rotation.y -= rotationSpeed;
     }
+
+    
+    // Up/Down rotation for testing Cube Texture
+    if (keys['z']) {
+        camera.rotation.x += rotationSpeed;
+    }
+    if (keys['c']) {
+        camera.rotation.x -= rotationSpeed;
+    } 
+
 };
+
 
 // Animation Loop
 const animate = () => {
