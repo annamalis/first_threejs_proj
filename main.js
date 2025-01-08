@@ -33,28 +33,58 @@ renderer.setSize(sizes.width, sizes.height)
 
 renderer.render(scene, camera)
 
-// Keyboard Input
-const moveSpeed = 0.1; // Speed of camera movement
+// Movement Variables
+const moveSpeed = 0.1;    // Speed of movement
+const rotationSpeed = 0.05; // Speed of rotation
+const keys = {};
+
+// Track Key States
 document.addEventListener('keydown', (event) => {
-    switch(event.key) {
-        case 'ArrowUp':    // Move camera forward
-            camera.position.z -= moveSpeed;
-            break;
-        case 'ArrowDown':  // Move camera backward
-            camera.position.z += moveSpeed;
-            break;
-        case 'ArrowLeft':  // Move camera left
-            camera.position.x -= moveSpeed;
-            break;
-        case 'ArrowRight': // Move camera right
-            camera.position.x += moveSpeed;
-            break;
+    keys[event.key] = true;
+});
+document.addEventListener('keyup', (event) => {
+    keys[event.key] = false;
+});
+
+// Calculate Movement
+const moveCamera = () => {
+    const direction = new THREE.Vector3();
+    camera.getWorldDirection(direction);
+
+    // Forward and Backward (W/S or Arrow Up/Down)
+    if (keys['ArrowUp'] || keys['w']) {
+        camera.position.add(direction.multiplyScalar(moveSpeed));
     }
-})
+    if (keys['ArrowDown'] || keys['s']) {
+        camera.position.add(direction.multiplyScalar(-moveSpeed));
+    }
+
+    // Left and Right (A/D or Arrow Left/Right)
+    const right = new THREE.Vector3();
+    right.crossVectors(camera.up, direction).normalize();
+    if (keys['ArrowLeft'] || keys['a']) {
+        camera.position.add(right.multiplyScalar(moveSpeed));
+    }
+    if (keys['ArrowRight'] || keys['d']) {
+        camera.position.add(right.multiplyScalar(-moveSpeed));
+    }
+
+    // Rotation (Q/E for strafing the view)
+    if (keys['q']) {
+        camera.rotation.y += rotationSpeed;
+    }
+    if (keys['e']) {
+        camera.rotation.y -= rotationSpeed;
+    }
+};
 
 // Animation Loop
 const animate = () => {
-    requestAnimationFrame(animate)
-    renderer.render(scene, camera)
+    requestAnimationFrame(animate);
+
+    // Apply Movement
+    moveCamera();
+
+    renderer.render(scene, camera);
 }
-animate()
+animate();
