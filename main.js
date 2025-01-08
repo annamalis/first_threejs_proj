@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
@@ -7,6 +7,21 @@ const canvas = document.querySelector('canvas.webgl')
 
 // Scene
 const scene = new THREE.Scene()
+
+//Sky
+
+const loader = new THREE.CubeTextureLoader();
+const skyboxTexture = loader.load([
+    'public/right.png', //right
+    'public/left.png', //left
+    'public/top.png', //top
+    'public/bot.png', //bottom
+    'public/front.png', //front
+    'public/back.png' //back
+]);
+
+scene.background = skyboxTexture;
+
 
 // Objects
 const geometry = new THREE.BoxGeometry(1, 1, 1)
@@ -30,7 +45,6 @@ const renderer = new THREE.WebGLRenderer({
     canvas: canvas
 })
 renderer.setSize(sizes.width, sizes.height)
-
 renderer.render(scene, camera)
 
 // Movement Variables
