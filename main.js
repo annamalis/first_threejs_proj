@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
@@ -31,3 +32,29 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(sizes.width, sizes.height)
 
 renderer.render(scene, camera)
+
+// Keyboard Input
+const moveSpeed = 0.1; // Speed of camera movement
+document.addEventListener('keydown', (event) => {
+    switch(event.key) {
+        case 'ArrowUp':    // Move camera forward
+            camera.position.z -= moveSpeed;
+            break;
+        case 'ArrowDown':  // Move camera backward
+            camera.position.z += moveSpeed;
+            break;
+        case 'ArrowLeft':  // Move camera left
+            camera.position.x -= moveSpeed;
+            break;
+        case 'ArrowRight': // Move camera right
+            camera.position.x += moveSpeed;
+            break;
+    }
+})
+
+// Animation Loop
+const animate = () => {
+    requestAnimationFrame(animate)
+    renderer.render(scene, camera)
+}
+animate()
