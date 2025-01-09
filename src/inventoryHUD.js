@@ -14,3 +14,18 @@ export function updateHUD() {
     // Set the HUD text
     hudElement.textContent = `Inventory: ${itemsString}`;
   }
+
+export function showPrompt(message) {
+    const promptElement = document.getElementById('interactionPrompt');
+    if (promptElement) {
+        promptElement.textContent = message; // Set the message
+        promptElement.style.display = 'block'; // Show the prompt
+    }
+}
+
+export function hidePrompt() {
+    const promptElement = document.getElementById('interactionPrompt');
+    if (promptElement) {
+        promptElement.style.display = 'none'; // Hide the prompt
+    }
+}
