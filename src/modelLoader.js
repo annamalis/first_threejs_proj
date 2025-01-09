@@ -22,3 +22,28 @@ export const loadModel = (path, scale = 1) => {
         );
     });
 };
+
+export const loadModelWithAnimations = (path, scale = 1) => {
+    return new Promise((resolve, reject) => {
+        const loader = new GLTFLoader();
+        loader.load(
+            path,
+            (gltf) => {
+                const model = gltf.scene;
+                model.scale.set(scale, scale, scale);
+
+                // Set up an AnimationMixer
+                const mixer = new THREE.AnimationMixer(model);
+
+                // Resolve with the model, mixer, and animations
+                resolve({
+                    model,
+                    mixer,
+                    animations: gltf.animations
+                });
+            },
+            undefined,
+            (error) => reject(error)
+        );
+    });
+};

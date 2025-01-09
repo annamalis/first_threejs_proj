@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { scene, camera, renderer } from './sceneSetup.js';
 import { addEnvironment } from './environment.js';
-import { loadModel } from './modelLoader.js';
+import { loadModel, loadModelWithAnimations } from './modelLoader.js';
 import { trackKeys, moveCamera } from './playerMovement.js';
 import { collisionManager } from './collisionManager.js';
 import { pickUpItem, giveItemToTorus } from './itemInteraction.js';
@@ -17,20 +17,27 @@ trackKeys();
 
 let redBall = null;
 let torus = null;
+let torusMixer = null;
+let idleAction = null;
+let receiveBallAction = null;
 
 // Load models and add them to the collision manager
-loadModel('./public/Char/test2.glb', 1).then(({ model, boundingBox }) => {
-    torus = model; // Assign the torus model
-    scene.add(model);
+loadModelWithAnimations('./public/Char/test3.glb', 1).then(({ model, mixer, animations }) => {
+    torus = model;
+    torusMixer = mixer;
+
+    // Add the model to the scene
+    scene.add(torus);
 
     // Position the torus
     torus.position.set(0, 0, 0);
 
-    // Update its bounding box
-    boundingBox.setFromObject(torus);
-    collisionManager.addModel(torus, boundingBox);
+    // Get the animations by name
+    idleAction = torusMixer.clipAction(animations.find((clip) => clip.name === 'Idle Wobble'));
+    receiveBallAction = torusMixer.clipAction(animations.find((clip) => clip.name === 'ReceiveItemFlip'));
 
-    console.log('Torus Position:', torus.position);
+    // Play the idle animation
+    if (idleAction) idleAction.play();
 });
 
 loadModel('./public/Char/redball.glb', 1).then(({ model, boundingBox }) => {
@@ -65,6 +72,7 @@ const checkCollision = (newPosition) => {
 };
 
 // Animation loop
+const clock = new THREE.Clock();
 const animate = () => {
     requestAnimationFrame(animate);
 
@@ -110,6 +118,9 @@ const animate = () => {
 
     // Handle camera movement
     moveCamera(checkCollision);
+
+    const delta = clock.getDelta(); // Time since last frame
+    if (torusMixer) torusMixer.update(delta); // Update the animation mixer
 
     // Render the scene
     renderer.render(scene, camera);
