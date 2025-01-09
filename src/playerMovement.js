@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { camera } from './sceneSetup.js';
 
-const keys = {};
+export const keys = {};
 export const moveSpeed = 0.1;
 const rotationSpeed = 0.05;
 
