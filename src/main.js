@@ -105,7 +105,7 @@ const animate = () => {
 
             if (keys['f']) {
                 console.log("'F' key pressed, giving RedBall to Torus");
-                giveItemToTorus('Red Ball');
+                giveItemToTorus('Red Ball', idleAction, receiveBallAction, torusMixer);
                 hidePrompt(); // Hide the prompt
             }
         }
@@ -114,6 +114,10 @@ const animate = () => {
     // Hide the prompt if no prompt is active
     if (!promptShown) {
         hidePrompt();
+    }
+    if (torus) {
+        const torusBoundingBox = new THREE.Box3().setFromObject(torus);
+        collisionManager.addModel(torus, torusBoundingBox);
     }
 
     // Handle camera movement
