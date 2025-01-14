@@ -20,8 +20,9 @@ let torus = null;
 let torusMixer = null;
 let idleAction = null;
 let receiveBallAction = null;
+const mixers = []; // Array to store all animation mixers
 
-// Load models and add them to the collision manager
+// Load the torus model with animations
 loadModelWithAnimations('./public/Char/test3.glb', 1).then(({ model, mixer, animations }) => {
     torus = model;
     torusMixer = mixer;
@@ -38,32 +39,48 @@ loadModelWithAnimations('./public/Char/test3.glb', 1).then(({ model, mixer, anim
 
     // Play the idle animation
     if (idleAction) idleAction.play();
+
+    mixers.push(torusMixer); // Add the torus mixer to the mixers array
 });
 
-loadModel('./public/Char/redball.glb', 1).then(({ model, boundingBox }) => {
+// Load the red ball model
+loadModel('./public/Char/redball.glb', 1, { x: -3, y: 0, z: 0 }, true).then(({ model, boundingBox }) => {
     redBall = model;
 
+    console.log('RedBall Loaded');
+    console.log('Bounding Box:', boundingBox);
+}).catch((error) => {
+    console.error('Error loading red ball:', error);
+});
 
-    // Access the actual mesh (child) within the model
-    const mesh = redBall.getObjectByProperty('type', 'Mesh'); // Get the Mesh object
+// Load a new animated model (body-deform6.glb)
+loadModelWithAnimations('./public/Char/body-deform6.glb', .5).then(({ model, mixer, animations }) => {
+    scene.add(model);
 
-    if (mesh) {
-        // Calculate the world position of the mesh
-        const worldPosition = new THREE.Vector3();
-        mesh.getWorldPosition(worldPosition);
+    // Position the model in the scene
+    model.position.set(2, 1.5, -3);
 
-        // Update the redBall position to match its visual position
-        redBall.position.set(-3, 0, 0);
-
-        // Update the bounding box to reflect the red ball's current position
-        boundingBox.setFromObject(redBall); // Use the entire model, not just the mesh
-
-        
+    // Play the first animation if available
+    const animationClip = animations.find((clip) => clip.name === 'Key.001Action.002');
+    if (animationClip) {
+        const action = mixer.clipAction(animationClip);
+        action.play();
     }
 
-    // Add to the scene and collision manager
-    scene.add(redBall);
-    collisionManager.addModel(redBall, boundingBox);
+    mixers.push(mixer); // Add this mixer's animations to the array
+}).catch((error) => {
+    console.error('Error loading body-deform6.glb:', error);
+});
+
+// Load environment test model
+loadModel('./public/Char/envr_test3.glb', 3).then(({ model, boundingBox }) => {
+    model.position.y = -0.9;
+    scene.add(model);
+
+    console.log('Environment Test Model Loaded');
+    console.log('Bounding Box:', boundingBox);
+}).catch((error) => {
+    console.error('Error loading the environment test model:', error);
 });
 
 // Updated checkCollision function
@@ -115,6 +132,8 @@ const animate = () => {
     if (!promptShown) {
         hidePrompt();
     }
+
+    // Recalculate collision box when torus animates
     if (torus) {
         const torusBoundingBox = new THREE.Box3().setFromObject(torus);
         collisionManager.addModel(torus, torusBoundingBox);
@@ -124,7 +143,9 @@ const animate = () => {
     moveCamera(checkCollision);
 
     const delta = clock.getDelta(); // Time since last frame
-    if (torusMixer) torusMixer.update(delta); // Update the animation mixer
+
+    // Update all mixers
+    mixers.forEach((mixer) => mixer.update(delta));
 
     // Render the scene
     renderer.render(scene, camera);
