@@ -14,7 +14,7 @@ export const addEnvironment = () => {
     scene.background = skyboxTexture;
 
     // Ground Plane
-    const groundGeometry = new THREE.PlaneGeometry(50, 50);
+    const groundGeometry = new THREE.PlaneGeometry(500, 500);
     const groundMaterial = new THREE.MeshStandardMaterial({ color: 0x556b2f });
     const ground = new THREE.Mesh(groundGeometry, groundMaterial);
     ground.rotation.x = -Math.PI / 2;
@@ -44,6 +44,32 @@ export const addEnvironment = () => {
         undefined,
         (error) => {
             console.error('Error loading environment:', error);
+        }
+    );
+
+    gltfLoader.load(
+        './public/Char/environ-01-path.glb',
+        (gltf) => {
+            const path = gltf.scene;
+            path.scale.set(1, 1, 1); // Adjust scale if needed
+            path.position.set(0, -1, 0);
+            scene.add(path);
+
+            // Optional: Add collisions for path boundaries (e.g., rails or walls)
+            /*
+            path.traverse((child) => {
+                if (child.isMesh && child.name.toLowerCase().includes('wall')) {
+                    const boundingBox = new THREE.Box3().setFromObject(child);
+                    collisionManager.addModel(child, boundingBox);
+                }
+            });
+            */
+
+            console.log('Path environment loaded.');
+        },
+        undefined,
+        (error) => {
+            console.error('Error loading path environment:', error);
         }
     );
 };
