@@ -1,5 +1,7 @@
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { scene } from './sceneSetup.js';
+import { collisionManager } from './collisionManager.js';
 
 export const addEnvironment = () => {
     // Skybox
@@ -16,7 +18,32 @@ export const addEnvironment = () => {
     const groundMaterial = new THREE.MeshStandardMaterial({ color: 0x556b2f });
     const ground = new THREE.Mesh(groundGeometry, groundMaterial);
     ground.rotation.x = -Math.PI / 2;
-    ground.position.set(0, -1, 0);
+    ground.position.set(0, -1.01, 0);
     ground.receiveShadow = true;
     scene.add(ground);
+
+    const gltfLoader = new GLTFLoader();
+    gltfLoader.load(
+        './public/Char/environ-01.glb',
+        (gltf) => {
+            const environment = gltf.scene;
+            environment.scale.set(1, 1, 1); // Adjust scale if needed
+            environment.position.set(0, -1, 0);
+            scene.add(environment);
+
+            // Set up collisions for walls
+            environment.traverse((child) => {
+                if (child.isMesh && child.name.toLowerCase().includes('wall')) {
+                    const boundingBox = new THREE.Box3().setFromObject(child);
+                    collisionManager.addModel(child, boundingBox);
+                }
+            });
+
+            console.log('Environment loaded with collisions.');
+        },
+        undefined,
+        (error) => {
+            console.error('Error loading environment:', error);
+        }
+    );
 };
