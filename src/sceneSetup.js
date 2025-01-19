@@ -15,6 +15,7 @@ export const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 
+
 // Lights
 const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(10, 10, 10);
@@ -22,7 +23,7 @@ light.intensity = 1.0;
 scene.add(light);
 
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-ambientLight.intensity = 6.0;
+ambientLight.intensity = 4.0;
 scene.add(ambientLight);
 
 //Post Processing Setup
