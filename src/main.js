@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { scene, camera, renderer } from './sceneSetup.js';
+import { scene, camera, renderer, composer } from './sceneSetup.js';
 import { addEnvironment } from './environment.js';
 import { loadModel, loadModelWithAnimations } from './modelLoader.js';
 import { trackKeys, moveCamera } from './playerMovement.js';
@@ -35,6 +35,7 @@ const animate = () => {
     mixers.forEach((mixer) => mixer.update(delta));
 
     // Render the scene
-    renderer.render(scene, camera);
+    // Render using the composer
+    composer.render(delta);
 };
 animate();
