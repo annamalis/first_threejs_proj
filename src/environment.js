@@ -18,12 +18,7 @@ export const addEnvironment = () => {
 
   // Ground Plane
   const groundGeometry = new THREE.PlaneGeometry(500, 500);
-
-  const textureLoader = new THREE.TextureLoader();
-const groundTexture = textureLoader.load('./public/field2-dark-pixel.jpg');
-
-
-  const groundMaterial = new THREE.MeshStandardMaterial({ map: groundTexture });
+  const groundMaterial = new THREE.MeshStandardMaterial({ color: 0x556b2f });
   const ground = new THREE.Mesh(groundGeometry, groundMaterial);
   ground.rotation.x = -Math.PI / 2;
   ground.position.set(0, -1.01, 0);
