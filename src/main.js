@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { scene, camera, renderer, composer } from './sceneSetup.js';
+import { scene, camera, renderer, composer, resetLighting } from './sceneSetup.js';
 import { addEnvironment, exteriorDoor, interiorDoor, setInteriorDoor } from './environment.js';
 import { loadModel, loadModelWithAnimations } from './modelLoader.js';
 import { trackKeys, moveCamera } from './playerMovement.js';
@@ -104,6 +104,7 @@ const loadExterior = () => {
 
     // ✅ Reload the exterior environment
     addEnvironment();
+    resetLighting();
 
     // ✅ Debugging Camera Movement
     console.log("Before exiting, camera position:", camera.position);

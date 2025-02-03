@@ -71,3 +71,26 @@ const pixelPass = new ShaderPass(PixelShader);
 pixelPass.uniforms['resolution'].value.set(window.innerWidth, window.innerHeight);
 pixelPass.uniforms['pixelSize'].value = 3.0; // Adjust pixel size for more/less pixelation
 composer.addPass(pixelPass);
+
+export const resetLighting = () => {
+    console.log("🔆 Resetting lighting...");
+
+    // ✅ Remove any existing lights before resetting
+    scene.children
+        .filter(obj => obj.isLight)
+        .forEach(light => scene.remove(light));
+
+    // ✅ Re-add ambient light
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    ambientLight.intensity = 4.0; // Keep original intensity
+    scene.add(ambientLight);
+
+    // ✅ Re-add directional light
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(10, 10, 10);
+    directionalLight.intensity = 1.0;
+    directionalLight.castShadow = true;
+    scene.add(directionalLight);
+
+    console.log("✅ Lighting reset complete.");
+}
