@@ -3,8 +3,11 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { scene } from "./sceneSetup.js";
 import { collisionManager } from "./collisionManager.js";
 
+// Reference to the door for interaction
+export let exteriorDoor = null; 
+
+// Skybox
 export const addEnvironment = () => {
-  // Skybox
   const loader = new THREE.CubeTextureLoader();
   const skyboxTexture = loader.load([
     "/skybox_px.jpg",
@@ -30,7 +33,7 @@ export const addEnvironment = () => {
 // Load Environment
   const gltfLoader = new GLTFLoader();
   gltfLoader.load(
-    "./public/Char/environ-01-yard-kitchen-test4.glb",
+    "./public/Char/house-exterior2.glb",
     (gltf) => {
       const environment = gltf.scene;
       environment.scale.set(1, 1, 1); // Adjust scale if needed
@@ -50,10 +53,20 @@ export const addEnvironment = () => {
           */
         }
 
+        // Collision for invisible collision objects
         if (child.isMesh && child.name.startsWith('collision_')) {
             const boundingBox = new THREE.Box3().setFromObject(child);
             collisionManager.addModel(child, boundingBox);
             child.material.visible = false;
+        }
+
+        // Detect exterior door
+        if (child.name.toLowerCase() === "exterior-door") {
+            exteriorDoor = child;
+            exteriorDoor.updateMatrixWorld(true); // Ensures correct world position
+    console.log("✅ Exterior door world position:", exteriorDoor.getWorldPosition(new THREE.Vector3()));
+            
+            
         }
       });
 
