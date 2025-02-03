@@ -3,8 +3,14 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { scene } from "./sceneSetup.js";
 import { collisionManager } from "./collisionManager.js";
 
-// Reference to the door for interaction
+// Reference to the door for exiting/entering
 export let exteriorDoor = null; 
+export let interiorDoor = null;
+
+// Function to update interiorDoor safely
+export const setInteriorDoor = (door) => {
+    interiorDoor = door;
+};
 
 // Skybox
 export const addEnvironment = () => {

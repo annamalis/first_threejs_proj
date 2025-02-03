@@ -69,5 +69,5 @@ const PixelShader = {
 // Add the pixelation pass
 const pixelPass = new ShaderPass(PixelShader);
 pixelPass.uniforms['resolution'].value.set(window.innerWidth, window.innerHeight);
-pixelPass.uniforms['pixelSize'].value = 1.0; // Adjust pixel size for more/less pixelation
+pixelPass.uniforms['pixelSize'].value = 3.0; // Adjust pixel size for more/less pixelation
 composer.addPass(pixelPass);
