@@ -15,17 +15,49 @@ export function updateHUD() {
     hudElement.textContent = `Inventory: ${itemsString}`;
   }
 
-export function showPrompt(message) {
+  export function showPrompt(message) {
     const promptElement = document.getElementById('interactionPrompt');
+
     if (promptElement) {
-        promptElement.textContent = message; // Set the message
-        promptElement.style.display = 'block'; // Show the prompt
+        
+        promptElement.textContent = message; // ✅ Set the message
+        promptElement.style.display = 'block'; // ✅ Make sure it's visible
+
+        
+    } else {
+        console.warn("⚠️ Warning: Prompt element not found in DOM!");
     }
 }
 
 export function hidePrompt() {
     const promptElement = document.getElementById('interactionPrompt');
     if (promptElement) {
-        promptElement.style.display = 'none'; // Hide the prompt
+        promptElement.style.display = 'none';
     }
 }
+
+export const showCodeInput = (callback) => {
+    // Create input field
+    const inputField = document.createElement('input');
+    inputField.id = "codeInputField";
+    inputField.type = 'text';
+    inputField.maxLength = 3; // 3-digit code
+    inputField.style.position = 'absolute';
+    inputField.style.top = '50%';
+    inputField.style.left = '50%';
+    inputField.style.transform = 'translate(-50%, -50%)';
+    inputField.style.fontSize = '2em';
+    document.body.appendChild(inputField);
+
+    // Focus on the input field
+    inputField.focus();
+
+    // Handle input submission
+    inputField.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            const enteredCode = inputField.value;
+            document.body.removeChild(inputField);
+            callback(enteredCode); // Pass the code back to the callback
+        }
+    });
+};

@@ -23,6 +23,8 @@ export const moveCamera = (collisionCallback) => {
     if (keys['w'] || keys['ArrowUp']) moveVector.add(direction.multiplyScalar(moveSpeed));
     if (keys['s'] || keys['ArrowDown']) moveVector.add(direction.multiplyScalar(-moveSpeed));
 
+    console.log(`🎥 Updated Camera Position: Z = ${camera.position.z}`);
+
     const right = new THREE.Vector3();
     right.crossVectors(camera.up, direction).normalize();
     if (keys['a'] || keys['ArrowLeft']) moveVector.add(right.multiplyScalar(moveSpeed));
