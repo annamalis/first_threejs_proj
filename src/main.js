@@ -225,7 +225,7 @@ const checkDoorInteraction = () => {
 let hallwayA = null;
 let hallwayB = null;
 let currentFront = null; // The hallway the player is currently in
-let currentBack = null;  // The hallway that is behind (and will be repositioned)
+let currentBack = null; // The hallway that is behind (and will be repositioned)
 const hallwayLength = 32.518; // Exact Blender length
 
 const loadInfiniteHallway = () => {
@@ -287,7 +287,7 @@ const loadInfiniteHallway = () => {
 const trackPlayerProgress = () => {
   // Define a threshold – when the player reaches 75% into the current front segment,
   // reposition the back segment in front.
-  const threshold = currentFront.position.z - (hallwayLength * 0.75);
+  const threshold = currentFront.position.z - hallwayLength;
 
   // Because our player is moving in the negative Z direction, once the camera's z
   // becomes less than or equal to the threshold, it means they've advanced enough.
@@ -298,9 +298,7 @@ const trackPlayerProgress = () => {
     // Reposition the back segment to be directly in front of the current front segment.
     // That is, set its z to currentFront.z - hallwayLength.
     currentBack.position.z = currentFront.position.z - hallwayLength;
-    console.log(
-      `🚨 Moved back segment to Z = ${currentBack.position.z}`
-    );
+    console.log(`🚨 Moved back segment to Z = ${currentBack.position.z}`);
 
     // Swap the roles: the one we just moved becomes the new front.
     const temp = currentFront;
