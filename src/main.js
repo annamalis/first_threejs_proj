@@ -130,10 +130,8 @@ const loadExterior = () => {
   resetLighting();
 
   // ✅ Debugging Camera Movement
-  console.log("Before exiting, camera position:", camera.position);
   camera.position.set(28, 1.5, 0);
   camera.updateMatrixWorld(true);
-  console.log("After exiting, camera position:", camera.position);
 
   // ✅ Set insideHouse = false **AFTER A SHORT DELAY**
   setTimeout(() => {
@@ -224,113 +222,94 @@ const checkDoorInteraction = () => {
   }
 };
 
+let hallwayA = null;
+let hallwayB = null;
+let currentFront = null; // The hallway the player is currently in
+let currentBack = null;  // The hallway that is behind (and will be repositioned)
+const hallwayLength = 32.518; // Exact Blender length
+
 const loadInfiniteHallway = () => {
   console.log("🚪 Entering infinite hallway...");
   inInfiniteHallway = true;
 
-  const hallwayLength = 32.518; // ✅ Exact Blender length
-  const numHallways = 2; // ✅ We only need two for seamless looping
-
-  // Remove previous environments except camera & renderer
+  // Clear out the previous scene (except camera and renderer)
   scene.children
     .filter((obj) => obj !== camera && obj !== composer && obj !== renderer)
     .forEach((obj) => scene.remove(obj));
 
   resetLighting();
-
-  // Set dark skybox and enable fog
-  scene.background = new THREE.Color(0x000000);
+  scene.background = new THREE.Color(0x000000); // Dark skybox
   console.log("🌌 Dark skybox & fog enabled.");
 
-  // ✅ Track hallway instances
-  const hallwayInstances = [];
-
-  // ✅ Load the first hallway **exactly at (0, -1, 0)**
+  // Load the first hallway segment (Hallway A)
   gltfLoader.load(
     "./public/Char/infin-hallwy.glb",
     (gltf) => {
-      const hallway = gltf.scene;
-      hallway.scale.set(1, 1, 1);
-      hallway.position.set(0, -1, 0); // ✅ This one stays at (0, -1, 0)
+      hallwayA = gltf.scene;
+      hallwayA.scale.set(1, 1, 1);
+      hallwayA.position.set(0, -1, 0); // Start position
+      scene.add(hallwayA);
+      console.log(`✅ Hallway A loaded at Z = ${hallwayA.position.z}`);
 
-      scene.add(hallway);
-      hallwayInstances.push(hallway);
-      console.log(`✅ First hallway loaded at: Z = ${hallway.position.z}`);
+      // Now load the second hallway (Hallway B) behind it
+      gltfLoader.load(
+        "./public/Char/infin-hallwy.glb",
+        (gltf2) => {
+          hallwayB = gltf2.scene;
+          hallwayB.scale.set(1, 1, 1);
+          // Position it immediately after hallway A.
+          hallwayB.position.set(0, -1, -hallwayLength);
+          scene.add(hallwayB);
+          console.log(`✅ Hallway B loaded at Z = ${hallwayB.position.z}`);
 
-      // ✅ Load the second hallway behind it
-      loadSecondHallway();
+          // Set our initial roles:
+          // The front segment (the one the player is in) is the one with the lower Z.
+          // In our case, hallwayB is in front because -hallwayLength is less than 0.
+          currentFront = hallwayB;
+          currentBack = hallwayA;
+
+          // Start tracking player progress
+          trackPlayerProgress();
+        },
+        undefined,
+        (error) => {
+          console.error("❌ Error loading second hallway:", error);
+        }
+      );
     },
     undefined,
     (error) => {
       console.error("❌ Error loading first hallway:", error);
     }
   );
-
-  // ✅ Function to load the second hallway **behind the first**
-  const loadSecondHallway = () => {
-    gltfLoader.load(
-      "./public/Char/infin-hallwy.glb",
-      (gltf) => {
-        const hallway = gltf.scene;
-        hallway.scale.set(1, 1, 1);
-        hallway.position.set(0, -1, -hallwayLength); // ✅ Positioned right after Hallway 0
-
-        scene.add(hallway);
-        hallwayInstances.push(hallway);
-        console.log(`✅ Second hallway loaded at: Z = ${hallway.position.z}`);
-
-        // ✅ Start movement logic **AFTER the player has moved sufficiently**
-        trackPlayerProgress();
-      },
-      undefined,
-      (error) => {
-        console.error("❌ Error loading second hallway:", error);
-      }
-    );
-  };
-
-  // ✅ Function to track when the player should trigger a hallway shift
-  let hallwaySwaps = 0; // Track movement cycles
-
-  const trackPlayerProgress = () => {
-    const playerZ = camera.position.z;
-
-    // ✅ Find the farthest hallway (one farthest behind the player)
-    const farthestHallway = hallwayInstances.reduce((farthest, hallway) => {
-        return hallway.position.z < farthest.position.z ? hallway : farthest;
-    }, hallwayInstances[0]);
-
-    // ✅ Move threshold should **NOT shift**
-    if (typeof trackPlayerProgress.moveThreshold === 'undefined') {
-        trackPlayerProgress.moveThreshold = hallwayInstances[1].position.z - (hallwayLength * 0.75);
-        console.log(`🔒 Locked Move Threshold: ${trackPlayerProgress.moveThreshold}`);
-    }
-
-    const moveThreshold = trackPlayerProgress.moveThreshold;
-
-    console.log(`🔍 Checking farthest hallway: Z = ${farthestHallway.position.z}, Player Z = ${playerZ}`);
-    console.log(`🚦 Move threshold (locked): ${moveThreshold}`);
-
-    // ✅ Wait until the player reaches 75% into the second hallway
-    if (playerZ > moveThreshold) {  
-        console.log(`✅ Player has NOT reached 75% into the second hallway yet.`);
-        requestAnimationFrame(trackPlayerProgress);
-        return;
-    }
-
-    // ✅ Move the farthest hallway **only when the player crosses the threshold**
-    console.log(`🚨 TRIGGER: Moving farthest hallway!`);
-    farthestHallway.position.z -= numHallways * hallwayLength;
-    console.log(`🔁 Moved farthest hallway to Z = ${farthestHallway.position.z}`);
-
-    // ✅ Reset the move threshold **to the new hallway’s position**
-    trackPlayerProgress.moveThreshold -= hallwayLength;
-
-    console.log(`🔄 Hallway cycle completed. New move threshold: ${trackPlayerProgress.moveThreshold}`);
-
-    // ✅ Repeat check to keep the loop going
-    requestAnimationFrame(trackPlayerProgress);
 };
+
+const trackPlayerProgress = () => {
+  // Define a threshold – when the player reaches 75% into the current front segment,
+  // reposition the back segment in front.
+  const threshold = currentFront.position.z - (hallwayLength * 0.75);
+
+  // Because our player is moving in the negative Z direction, once the camera's z
+  // becomes less than or equal to the threshold, it means they've advanced enough.
+  if (camera.position.z <= threshold) {
+    console.log(
+      `🔄 Player reached threshold (camera.z: ${camera.position.z} <= ${threshold})`
+    );
+    // Reposition the back segment to be directly in front of the current front segment.
+    // That is, set its z to currentFront.z - hallwayLength.
+    currentBack.position.z = currentFront.position.z - hallwayLength;
+    console.log(
+      `🚨 Moved back segment to Z = ${currentBack.position.z}`
+    );
+
+    // Swap the roles: the one we just moved becomes the new front.
+    const temp = currentFront;
+    currentFront = currentBack;
+    currentBack = temp;
+  }
+
+  // Keep checking on the next animation frame.
+  requestAnimationFrame(trackPlayerProgress);
 };
 
 // Updated checkCollision function
