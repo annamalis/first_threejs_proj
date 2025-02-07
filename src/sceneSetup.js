@@ -8,7 +8,7 @@ export const scene = new THREE.Scene();
 // Camera
 export const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.z = 3;
-camera.position.y = 2;
+camera.position.y = 3;
 
 // Renderer
 export const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('canvas.webgl') });

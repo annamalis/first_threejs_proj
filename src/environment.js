@@ -39,7 +39,7 @@ export const addEnvironment = () => {
 // Load Environment
   const gltfLoader = new GLTFLoader();
   gltfLoader.load(
-    "./public/Char/house-exterior2.glb",
+    "./public/Char/house-exterior3.glb",
     (gltf) => {
       const environment = gltf.scene;
       environment.scale.set(1, 1, 1); // Adjust scale if needed

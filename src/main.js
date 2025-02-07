@@ -29,6 +29,12 @@ let inInfiniteHallway = false;
 const gltfLoader = new GLTFLoader();
 const correctCode = "123"; // Our secret 3-digit code
 const hallwayInstances = []; // ✅ Store hallway segments for looping
+let hallwayA = null;
+let hallwayB = null;
+let currentFront = null; // The hallway the player is currently in
+let currentBack = null; // The hallway that is behind (and will be repositioned)
+const hallwayLength = 32.518; // Exact Blender length
+let endDoor = null;
 
 // Setup scene and environment
 addEnvironment();
@@ -76,7 +82,7 @@ const loadInterior = () => {
       });
 
       // ✅ Move the camera inside the house
-      camera.position.set(35, 1.5, 0);
+      camera.position.set(35, 3, 0);
       //resetLighting();
 
       // ✅ Add Ambient Light
@@ -130,7 +136,7 @@ const loadExterior = () => {
   resetLighting();
 
   // ✅ Debugging Camera Movement
-  camera.position.set(28, 1.5, 0);
+  camera.position.set(28, 3, 0);
   camera.updateMatrixWorld(true);
 
   // ✅ Set insideHouse = false **AFTER A SHORT DELAY**
@@ -151,6 +157,8 @@ const checkDoorInteraction = () => {
     const doorWorldPosition = new THREE.Vector3();
     exteriorDoor.getWorldPosition(doorWorldPosition);
     const distance = camera.position.distanceTo(doorWorldPosition);
+    //console.log("Distance to exteriorDoor:", distance);
+
 
     if (distance < 2) {
       showPrompt("Press SPACE to Enter");
@@ -166,17 +174,48 @@ const checkDoorInteraction = () => {
     }
   }
 
+//   if (insideHouse && interiorDoor) {
+//     // Get the door's world position.
+//     const doorWorldPosition = new THREE.Vector3();
+//     interiorDoor.getWorldPosition(doorWorldPosition);
+  
+//     // Compute horizontal distance only (ignore y difference).
+//     const cameraHorizontal = new THREE.Vector2(camera.position.x, camera.position.z);
+//     const doorHorizontal = new THREE.Vector2(doorWorldPosition.x, doorWorldPosition.z);
+//     const horizontalDistance = cameraHorizontal.distanceTo(doorHorizontal);
+//     // console.log("Horizontal distance to interiorDoor:", horizontalDistance);
+  
+//     if (horizontalDistance < 1.5) {
+//       console.log("✅ Showing prompt: Press SPACE to Exit");
+//       showPrompt("Press SPACE to Exit");
+//       if (keys[" "]) {
+//         hidePrompt();
+//         loadExterior();
+//         return;
+//       }
+//     } else {
+//       hidePrompt();
+//     }
+//   }
+
+  if (!exteriorDoor && !interiorDoor && !livingDoor) return; // If no doors exist, don't run
+
   if (insideHouse && interiorDoor) {
-    // Handle exiting the house
+    // Handle exiting the house based on horizontal distance (ignoring y)
     const doorWorldPosition = new THREE.Vector3();
     interiorDoor.getWorldPosition(doorWorldPosition);
-    const distance = camera.position.distanceTo(doorWorldPosition);
-
-    if (distance < 2) {
+  
+    // Calculate the horizontal distance (x and z only)
+    const dx = camera.position.x - doorWorldPosition.x;
+    const dz = camera.position.z - doorWorldPosition.z;
+    const horizontalDistance = Math.sqrt(dx * dx + dz * dz);
+    console.log("Horizontal distance to interiorDoor:", horizontalDistance);
+  
+    if (horizontalDistance < .5) {
       console.log("✅ Showing prompt: Press SPACE to Exit");
       showPrompt("Press SPACE to Exit");
       promptShown = true;
-
+  
       if (keys[" "]) {
         hidePrompt();
         loadExterior();
@@ -186,8 +225,6 @@ const checkDoorInteraction = () => {
       hidePrompt();
     }
   }
-
-  if (!exteriorDoor && !interiorDoor && !livingDoor) return; // If no doors exist, don't run
 
   if (insideHouse && livingDoor) {
     // Handle unlocking the hallway door
@@ -216,17 +253,12 @@ const checkDoorInteraction = () => {
       }
     }
   }
+  
 
   if (!promptShown) {
     hidePrompt();
   }
 };
-
-let hallwayA = null;
-let hallwayB = null;
-let currentFront = null; // The hallway the player is currently in
-let currentBack = null; // The hallway that is behind (and will be repositioned)
-const hallwayLength = 32.518; // Exact Blender length
 
 const loadInfiniteHallway = () => {
   console.log("🚪 Entering infinite hallway...");
@@ -239,7 +271,7 @@ const loadInfiniteHallway = () => {
 
   resetLighting();
   scene.background = new THREE.Color(0x000000); // Dark skybox
-  console.log("🌌 Dark skybox & fog enabled.");
+  scene.fog = new THREE.Fog(0x000000, 0, 15);
 
   // Load the first hallway segment (Hallway A)
   gltfLoader.load(
@@ -315,6 +347,76 @@ const checkCollision = (newPosition) => {
   return collisionManager.checkCollision(newPosition);
 };
 
+const checkEndDoorAppearance = () => {
+    // Only run this logic when we are in the infinite hallway.
+    if (!inInfiniteHallway) {
+      if (endDoor) {
+        scene.remove(endDoor);
+        endDoor = null;
+        console.log("🚪 End door removed (not in infinite hallway).");
+      }
+      return;
+    }
+    
+    // Get the camera's current world direction.
+    const cameraDir = new THREE.Vector3();
+    camera.getWorldDirection(cameraDir);
+    
+    // Define the hallway's forward direction (players normally walk along -Z).
+    const hallwayForward = new THREE.Vector3(0, 0, -1);
+    
+    // If the camera is turned around (i.e. facing opposite the hallway's forward),
+    // then load the door.
+    if (cameraDir.dot(hallwayForward) < 0) {
+      // Use currentFront (the hallway segment the player is in) as our reference.
+      if (!endDoor && currentFront) {
+        // Calculate the camera's horizontal offset relative to the current segment.
+        const cameraOffsetX = camera.position.x - currentFront.position.x;
+        
+        // Define a local offset for the door relative to currentFront.
+        // Because the hallway's forward is -Z, the back (entrance) of the segment is along +Z.
+        // For example, if we want the door to appear 10 units (in world terms) from the segment's origin,
+        // set doorZOffset to 10. (Adjust this value to bring the door closer or farther.)
+        const doorZOffset = 1; // Try 10 (or tweak this number)
+        const doorLocalOffset = new THREE.Vector3(cameraOffsetX, 0, doorZOffset);
+        
+        // Convert the local offset to a world position.
+        const doorPos = currentFront.localToWorld(doorLocalOffset.clone());
+        console.log("Computed doorPos:", doorPos);
+        
+        // Load the door model.
+        gltfLoader.load(
+          "./public/Char/end-door.glb",
+          (gltf) => {
+            endDoor = gltf.scene;
+            endDoor.scale.set(1, 1, 1);
+            endDoor.position.copy(doorPos);
+            // Align the door's rotation with currentFront so it appears flush with the hallway.
+            endDoor.rotation.copy(currentFront.rotation);
+            scene.add(endDoor);
+            console.log("✅ End door loaded at", doorPos);
+            
+            // Optionally add an AxesHelper to visualize its position:
+            const helper = new THREE.AxesHelper(2);
+            helper.position.copy(doorPos);
+            scene.add(helper);
+          },
+          undefined,
+          (error) => {
+            console.error("❌ Error loading end door:", error);
+          }
+        );
+      }
+    } else {
+      // If the camera is not turned around, remove the door (if present).
+      if (endDoor) {
+        scene.remove(endDoor);
+        endDoor = null;
+        console.log("🚪 End door removed (camera facing forward).");
+      }
+    }
+  };
+
 // Animation Loop
 const clock = new THREE.Clock();
 const animate = () => {
@@ -330,6 +432,8 @@ const animate = () => {
 
   // ✅ Ensure door interaction check happens continuously
   checkDoorInteraction();
+
+  checkEndDoorAppearance();
 
   // Render using the composer
   composer.render(delta);
