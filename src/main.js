@@ -16,9 +16,9 @@ import { loadModel, loadModelWithAnimations } from "./modelLoader.js";
 import { trackKeys, moveCamera } from "./playerMovement.js";
 import { collisionManager } from "./collisionManager.js";
 import { keys } from "./playerMovement.js";
-import { showPrompt, hidePrompt, showCodeInput } from "./inventoryHUD.js";
-import { playerInventory } from "./inventoryManager.js";
+import { showDoorPrompt, hideDoorPrompt, showCodeInput } from "./inventoryHUD.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { ItemInspector } from "./itemInspection.js";
 
 // Variables
 const mixers = []; // Array to store all animation mixers
@@ -35,6 +35,23 @@ let currentFront = null; // The hallway the player is currently in
 let currentBack = null; // The hallway that is behind (and will be repositioned)
 const hallwayLength = 32.518; // Exact Blender length
 let endDoor = null;
+
+//items to inspect
+const noteInspector = new ItemInspector({
+    meshName: "note-01001",
+    imageURL: "public/char/playgrnd-note-pixel.png",
+    inspectDistance: 4,
+    promptInspect: "Press Space to Inspect",
+    promptExit: "Press Space to Exit",
+  });
+
+//   const noteInspector2 = new ItemInspector({
+//     meshName: "note-02",
+//     imageURL: "public/char/kitchen-note-pixel.png",
+//     inspectDistance: 3,
+//     promptInspect: "Press Space to Inspect",
+//     promptExit: "Press Space to Exit",
+//   });
 
 // Setup scene and environment
 addEnvironment();
@@ -161,16 +178,17 @@ const checkDoorInteraction = () => {
 
 
     if (distance < 2) {
-      showPrompt("Press SPACE to Enter");
+        
+      showDoorPrompt("Press SPACE to Enter");
       promptShown = true;
       if (keys[" "]) {
-        hidePrompt();
+        hideDoorPrompt();
         loadInterior();
 
         return; // ✅ Stops further execution in this frame
       }
     } else {
-      hidePrompt();
+      hideDoorPrompt();
     }
   }
 
@@ -213,16 +231,16 @@ const checkDoorInteraction = () => {
   
     if (horizontalDistance < .5) {
       console.log("✅ Showing prompt: Press SPACE to Exit");
-      showPrompt("Press SPACE to Exit");
+      showDoorPrompt("Press SPACE to Exit");
       promptShown = true;
   
       if (keys[" "]) {
-        hidePrompt();
+        hideDoorPrompt();
         loadExterior();
         return;
       }
     } else {
-      hidePrompt();
+      hideDoorPrompt();
     }
   }
 
@@ -233,14 +251,14 @@ const checkDoorInteraction = () => {
     const distance = camera.position.distanceTo(doorWorldPosition);
 
     if (distance < 2) {
-      showPrompt("Press SPACE to Unlock");
+      showDoorPrompt("Press SPACE to Unlock");
       promptShown = true;
 
       if (keys[" "]) {
         showCodeInput((enteredCode) => {
           if (enteredCode === correctCode) {
             console.log("✅ Code correct! Entering hallway...");
-            hidePrompt();
+            hideDoorPrompt();
             loadInfiniteHallway();
           } else {
             console.log("❌ Incorrect code.");
@@ -256,7 +274,7 @@ const checkDoorInteraction = () => {
   
 
   if (!promptShown) {
-    hidePrompt();
+    hideDoorPrompt();
   }
 };
 
@@ -417,6 +435,14 @@ const checkEndDoorAppearance = () => {
     }
   };
 
+
+  //For debugging and finding mesh names
+  function logSceneNames(object, depth = 0) {
+    console.log(" ".repeat(depth * 2) + object.name);
+    object.children.forEach(child => logSceneNames(child, depth + 1));
+  }
+
+
 // Animation Loop
 const clock = new THREE.Clock();
 const animate = () => {
@@ -432,10 +458,20 @@ const animate = () => {
 
   // ✅ Ensure door interaction check happens continuously
   checkDoorInteraction();
-
   checkEndDoorAppearance();
+
+  // Update the item inspector
+  noteInspector.update(scene, camera);
+//   noteInspector2.update(scene, camera);
 
   // Render using the composer
   composer.render(delta);
+
+//   // debugging only
+//   logSceneNames(scene);
+
+
+
+
 };
 animate();

@@ -15,26 +15,56 @@ export function updateHUD() {
     hudElement.textContent = `Inventory: ${itemsString}`;
   }
 
-  export function showPrompt(message) {
-    const promptElement = document.getElementById('interactionPrompt');
+//   export function showPrompt(message) {
+//     const promptElement = document.getElementById('interactionPrompt');
 
-    if (promptElement) {
+//     if (promptElement) {
         
-        promptElement.textContent = message; // ✅ Set the message
-        promptElement.style.display = 'block'; // ✅ Make sure it's visible
+//         promptElement.textContent = message; // ✅ Set the message
+//         promptElement.style.display = 'block'; // ✅ Make sure it's visible
 
         
-    } else {
-        console.warn("⚠️ Warning: Prompt element not found in DOM!");
-    }
-}
+//     } else {
+//         console.warn("⚠️ Warning: Prompt element not found in DOM!");
+//     }
+// }
 
-export function hidePrompt() {
-    const promptElement = document.getElementById('interactionPrompt');
+// export function hidePrompt() {
+//     const promptElement = document.getElementById('interactionPrompt');
+//     if (promptElement) {
+//         promptElement.style.display = 'none';
+//     }
+// }
+
+export function showDoorPrompt(message) {
+    const promptElement = document.getElementById('doorPrompt');
     if (promptElement) {
-        promptElement.style.display = 'none';
+      promptElement.textContent = message;
+      promptElement.style.display = 'block';
     }
-}
+  }
+  
+  export function hideDoorPrompt() {
+    const promptElement = document.getElementById('doorPrompt');
+    if (promptElement) {
+      promptElement.style.display = 'none';
+    }
+  }
+  
+  export function showItemPrompt(message) {
+    const promptElement = document.getElementById('itemPrompt');
+    if (promptElement) {
+      promptElement.textContent = message;
+      promptElement.style.display = 'block';
+    }
+  }
+  
+  export function hideItemPrompt() {
+    const promptElement = document.getElementById('itemPrompt');
+    if (promptElement) {
+      promptElement.style.display = 'none';
+    }
+  }
 
 export const showCodeInput = (callback) => {
     // Create input field
