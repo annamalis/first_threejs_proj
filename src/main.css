@@ -1,15 +1,29 @@
 #interactionPrompt {
-    position: absolute;
-    bottom: 10%;
-    left: 50%;
-    transform: translateX(-50%);
-    color: white;
-    font-family: sans-serif;
-    background-color: rgba(0, 0, 0, 0.7);
-    padding: 8px;
-    border-radius: 4px;
-    display: none; /* Hidden by default */
-    font-size: 16px;
-    text-align: center;
-    white-space: nowrap;
+  position: absolute;
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  font-family: sans-serif;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 8px;
+  border-radius: 4px;
+  display: none; /* Hidden by default */
+  font-size: 16px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.item-prompt {
+  position: absolute;
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  font-family: sans-serif;
+  display: none;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 8px;
+  border-radius: 4px;
+  z-index: 1001;
 }

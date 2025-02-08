@@ -26,6 +26,21 @@ class ItemInspector {
     this.active = false; // whether the inspector is active (overlay is shown)
     this.inspectionDiv = null; // overlay DOM element
     this.itemMesh = null; // the target mesh from the scene
+
+    // Create an instance-specific prompt element:
+    this.promptElement = document.createElement("div");
+    this.promptElement.id = `itemPrompt-${this.meshName}`;
+    this.promptElement.classList.add("item-prompt");
+    document.body.appendChild(this.promptElement);
+  }
+
+  showPrompt(message) {
+    this.promptElement.textContent = message;
+    this.promptElement.style.display = "block";
+  }
+
+  hidePrompt() {
+    this.promptElement.style.display = "none";
   }
 
   /**
@@ -42,6 +57,11 @@ class ItemInspector {
       }
     }
 
+    if (!this.itemMesh) {
+      console.log(`[${this.meshName}] Mesh not found in scene.`);
+      return;
+    }
+
     // If we’re in inspection mode, check for exit key.
     if (this.active) {
       if (keys[" "]) {
@@ -54,24 +74,20 @@ class ItemInspector {
     // Otherwise, check the distance from the camera to the target.
     const itemWorldPosition = new THREE.Vector3();
     this.itemMesh.getWorldPosition(itemWorldPosition);
-    // For example, use the horizontal distance (x,z) if you want to ignore height:
     const dx = camera.position.x - itemWorldPosition.x;
     const dz = camera.position.z - itemWorldPosition.z;
     const horizontalDistance = Math.sqrt(dx * dx + dz * dz);
-    // You can also use the full 3D distance:
-    // const fullDistance = camera.position.distanceTo(itemWorldPosition);
-    
 
     if (horizontalDistance < this.inspectDistance) {
-      // Show the prompt if not already shown
-      showItemPrompt(this.promptInspect);
+      // Show the prompt using the instance-specific method.
+      this.showPrompt(this.promptInspect);
       if (keys[" "]) {
-        hideItemPrompt();
+        this.hidePrompt();
         this.enterInspection();
         keys[" "] = false;
       }
     } else {
-      hideItemPrompt();
+      this.hidePrompt();
     }
   }
 
@@ -110,8 +126,8 @@ class ItemInspector {
     } else {
       this.inspectionDiv.style.display = "flex";
     }
-    // Change the HUD prompt to tell the user how to exit
-    showItemPrompt(this.promptExit);
+    // Change the prompt to the exit message
+    this.showPrompt(this.promptExit);
   }
 
   /**
@@ -122,7 +138,7 @@ class ItemInspector {
     if (this.inspectionDiv) {
       this.inspectionDiv.style.display = "none";
     }
-    hideItemPrompt();
+    this.hidePrompt();
   }
 }
 

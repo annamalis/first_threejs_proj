@@ -16,7 +16,11 @@ import { loadModel, loadModelWithAnimations } from "./modelLoader.js";
 import { trackKeys, moveCamera } from "./playerMovement.js";
 import { collisionManager } from "./collisionManager.js";
 import { keys } from "./playerMovement.js";
-import { showDoorPrompt, hideDoorPrompt, showCodeInput } from "./inventoryHUD.js";
+import {
+  showDoorPrompt,
+  hideDoorPrompt,
+  showCodeInput,
+} from "./inventoryHUD.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { ItemInspector } from "./itemInspection.js";
 
@@ -38,20 +42,28 @@ let endDoor = null;
 
 //items to inspect
 const noteInspector = new ItemInspector({
-    meshName: "note-01001",
-    imageURL: "public/char/playgrnd-note-pixel.png",
-    inspectDistance: 4,
-    promptInspect: "Press Space to Inspect",
-    promptExit: "Press Space to Exit",
-  });
+  meshName: "note-01001",
+  imageURL: "public/char/playgrnd-note-pixel.png",
+  inspectDistance: 4,
+  promptInspect: "Press Space to Inspect",
+  promptExit: "Press Space to Exit",
+});
 
-//   const noteInspector2 = new ItemInspector({
-//     meshName: "note-02",
-//     imageURL: "public/char/kitchen-note-pixel.png",
-//     inspectDistance: 3,
-//     promptInspect: "Press Space to Inspect",
-//     promptExit: "Press Space to Exit",
-//   });
+const noteInspector2 = new ItemInspector({
+  meshName: "note-02",
+  imageURL: "public/char/kitchen-note-pixel.png",
+  inspectDistance: 4,
+  promptInspect: "Press Space to Inspect",
+  promptExit: "Press Space to Exit",
+});
+
+const noteInspector3 = new ItemInspector({
+  meshName: "med-bottle",
+  imageURL: "public/char/pillbottle-pixel.png",
+  inspectDistance: 4,
+  promptInspect: "Press Space to Inspect",
+  promptExit: "Press Space to Exit",
+});
 
 // Setup scene and environment
 addEnvironment();
@@ -69,7 +81,7 @@ const loadInterior = () => {
     .forEach((obj) => scene.remove(obj));
 
   gltfLoader.load(
-    "./public/Char/house-interior.glb",
+    "./public/Char/house-interior2.glb",
     (gltf) => {
       interiorEnvironment = gltf.scene; // ✅ Track the loaded interior
       interiorEnvironment.scale.set(1, 1, 1);
@@ -79,6 +91,13 @@ const loadInterior = () => {
       interiorEnvironment.traverse((child) => {
         if (child.isMesh) {
           child.visible = true;
+        }
+
+        // Collision for invisible collision objects
+        if (child.isMesh && child.name.startsWith("collision_")) {
+          const boundingBox = new THREE.Box3().setFromObject(child);
+          collisionManager.addModel(child, boundingBox);
+          child.material.visible = false;
         }
 
         // ✅ Use the setter function to update `interiorDoor`
@@ -176,9 +195,7 @@ const checkDoorInteraction = () => {
     const distance = camera.position.distanceTo(doorWorldPosition);
     //console.log("Distance to exteriorDoor:", distance);
 
-
     if (distance < 2) {
-        
       showDoorPrompt("Press SPACE to Enter");
       promptShown = true;
       if (keys[" "]) {
@@ -192,29 +209,29 @@ const checkDoorInteraction = () => {
     }
   }
 
-//   if (insideHouse && interiorDoor) {
-//     // Get the door's world position.
-//     const doorWorldPosition = new THREE.Vector3();
-//     interiorDoor.getWorldPosition(doorWorldPosition);
-  
-//     // Compute horizontal distance only (ignore y difference).
-//     const cameraHorizontal = new THREE.Vector2(camera.position.x, camera.position.z);
-//     const doorHorizontal = new THREE.Vector2(doorWorldPosition.x, doorWorldPosition.z);
-//     const horizontalDistance = cameraHorizontal.distanceTo(doorHorizontal);
-//     // console.log("Horizontal distance to interiorDoor:", horizontalDistance);
-  
-//     if (horizontalDistance < 1.5) {
-//       console.log("✅ Showing prompt: Press SPACE to Exit");
-//       showPrompt("Press SPACE to Exit");
-//       if (keys[" "]) {
-//         hidePrompt();
-//         loadExterior();
-//         return;
-//       }
-//     } else {
-//       hidePrompt();
-//     }
-//   }
+  //   if (insideHouse && interiorDoor) {
+  //     // Get the door's world position.
+  //     const doorWorldPosition = new THREE.Vector3();
+  //     interiorDoor.getWorldPosition(doorWorldPosition);
+
+  //     // Compute horizontal distance only (ignore y difference).
+  //     const cameraHorizontal = new THREE.Vector2(camera.position.x, camera.position.z);
+  //     const doorHorizontal = new THREE.Vector2(doorWorldPosition.x, doorWorldPosition.z);
+  //     const horizontalDistance = cameraHorizontal.distanceTo(doorHorizontal);
+  //     // console.log("Horizontal distance to interiorDoor:", horizontalDistance);
+
+  //     if (horizontalDistance < 1.5) {
+  //       console.log("✅ Showing prompt: Press SPACE to Exit");
+  //       showPrompt("Press SPACE to Exit");
+  //       if (keys[" "]) {
+  //         hidePrompt();
+  //         loadExterior();
+  //         return;
+  //       }
+  //     } else {
+  //       hidePrompt();
+  //     }
+  //   }
 
   if (!exteriorDoor && !interiorDoor && !livingDoor) return; // If no doors exist, don't run
 
@@ -222,18 +239,17 @@ const checkDoorInteraction = () => {
     // Handle exiting the house based on horizontal distance (ignoring y)
     const doorWorldPosition = new THREE.Vector3();
     interiorDoor.getWorldPosition(doorWorldPosition);
-  
+
     // Calculate the horizontal distance (x and z only)
     const dx = camera.position.x - doorWorldPosition.x;
     const dz = camera.position.z - doorWorldPosition.z;
     const horizontalDistance = Math.sqrt(dx * dx + dz * dz);
-    console.log("Horizontal distance to interiorDoor:", horizontalDistance);
-  
-    if (horizontalDistance < .5) {
+
+    if (horizontalDistance < 1.5) {
       console.log("✅ Showing prompt: Press SPACE to Exit");
       showDoorPrompt("Press SPACE to Exit");
       promptShown = true;
-  
+
       if (keys[" "]) {
         hideDoorPrompt();
         loadExterior();
@@ -271,7 +287,6 @@ const checkDoorInteraction = () => {
       }
     }
   }
-  
 
   if (!promptShown) {
     hideDoorPrompt();
@@ -291,9 +306,12 @@ const loadInfiniteHallway = () => {
   scene.background = new THREE.Color(0x000000); // Dark skybox
   scene.fog = new THREE.Fog(0x000000, 0, 15);
 
+  console.log(camera.position);
+  camera.position.set(47, 3, -31);
+
   // Load the first hallway segment (Hallway A)
   gltfLoader.load(
-    "./public/Char/infin-hallwy.glb",
+    "./public/Char/infin-hallwy2.glb",
     (gltf) => {
       hallwayA = gltf.scene;
       hallwayA.scale.set(1, 1, 1);
@@ -301,9 +319,20 @@ const loadInfiniteHallway = () => {
       scene.add(hallwayA);
       console.log(`✅ Hallway A loaded at Z = ${hallwayA.position.z}`);
 
+      hallwayA.traverse((child) => {
+        if (child.isMesh && child.name.startsWith("collision_")) {
+          console.log("Found collision object in Hallway A:", child.name);
+          // Optionally, add it to your collision manager:
+          const boundingBox = new THREE.Box3().setFromObject(child);
+          collisionManager.addModel(child, boundingBox);
+          child.material.visible = false;
+        }
+      });
+
+
       // Now load the second hallway (Hallway B) behind it
       gltfLoader.load(
-        "./public/Char/infin-hallwy.glb",
+        "./public/Char/infin-hallwy2.glb",
         (gltf2) => {
           hallwayB = gltf2.scene;
           hallwayB.scale.set(1, 1, 1);
@@ -311,6 +340,18 @@ const loadInfiniteHallway = () => {
           hallwayB.position.set(0, -1, -hallwayLength);
           scene.add(hallwayB);
           console.log(`✅ Hallway B loaded at Z = ${hallwayB.position.z}`);
+
+          hallwayB.traverse((child) => {
+            if (child.isMesh && child.name.startsWith("collision_")) {
+              console.log("Found collision object in Hallway B:", child.name);
+              // Optionally, add it to your collision manager:
+              const boundingBox = new THREE.Box3().setFromObject(child);
+              collisionManager.addModel(child, boundingBox);
+              child.material.visible = false;
+            }
+          });
+
+         
 
           // Set our initial roles:
           // The front segment (the one the player is in) is the one with the lower Z.
@@ -366,82 +407,100 @@ const checkCollision = (newPosition) => {
 };
 
 const checkEndDoorAppearance = () => {
-    // Only run this logic when we are in the infinite hallway.
-    if (!inInfiniteHallway) {
-      if (endDoor) {
-        scene.remove(endDoor);
-        endDoor = null;
-        console.log("🚪 End door removed (not in infinite hallway).");
-      }
-      return;
+  // Only run this logic when we are in the infinite hallway.
+  if (!inInfiniteHallway) {
+    if (endDoor) {
+      scene.remove(endDoor);
+      endDoor = null;
+      console.log("🚪 End door removed (not in infinite hallway).");
     }
-    
-    // Get the camera's current world direction.
-    const cameraDir = new THREE.Vector3();
-    camera.getWorldDirection(cameraDir);
-    
-    // Define the hallway's forward direction (players normally walk along -Z).
-    const hallwayForward = new THREE.Vector3(0, 0, -1);
-    
-    // If the camera is turned around (i.e. facing opposite the hallway's forward),
-    // then load the door.
-    if (cameraDir.dot(hallwayForward) < 0) {
-      // Use currentFront (the hallway segment the player is in) as our reference.
-      if (!endDoor && currentFront) {
-        // Calculate the camera's horizontal offset relative to the current segment.
-        const cameraOffsetX = camera.position.x - currentFront.position.x;
-        
-        // Define a local offset for the door relative to currentFront.
-        // Because the hallway's forward is -Z, the back (entrance) of the segment is along +Z.
-        // For example, if we want the door to appear 10 units (in world terms) from the segment's origin,
-        // set doorZOffset to 10. (Adjust this value to bring the door closer or farther.)
-        const doorZOffset = 1; // Try 10 (or tweak this number)
-        const doorLocalOffset = new THREE.Vector3(cameraOffsetX, 0, doorZOffset);
-        
-        // Convert the local offset to a world position.
-        const doorPos = currentFront.localToWorld(doorLocalOffset.clone());
-        console.log("Computed doorPos:", doorPos);
-        
-        // Load the door model.
-        gltfLoader.load(
-          "./public/Char/end-door.glb",
-          (gltf) => {
-            endDoor = gltf.scene;
-            endDoor.scale.set(1, 1, 1);
-            endDoor.position.copy(doorPos);
-            // Align the door's rotation with currentFront so it appears flush with the hallway.
-            endDoor.rotation.copy(currentFront.rotation);
-            scene.add(endDoor);
-            console.log("✅ End door loaded at", doorPos);
-            
-            // Optionally add an AxesHelper to visualize its position:
-            const helper = new THREE.AxesHelper(2);
-            helper.position.copy(doorPos);
-            scene.add(helper);
-          },
-          undefined,
-          (error) => {
-            console.error("❌ Error loading end door:", error);
-          }
-        );
-      }
-    } else {
-      // If the camera is not turned around, remove the door (if present).
-      if (endDoor) {
-        scene.remove(endDoor);
-        endDoor = null;
-        console.log("🚪 End door removed (camera facing forward).");
-      }
-    }
-  };
-
-
-  //For debugging and finding mesh names
-  function logSceneNames(object, depth = 0) {
-    console.log(" ".repeat(depth * 2) + object.name);
-    object.children.forEach(child => logSceneNames(child, depth + 1));
+    return;
   }
 
+  // Get the camera's current world direction.
+  const cameraDir = new THREE.Vector3();
+  camera.getWorldDirection(cameraDir);
+
+  // Define the hallway's forward direction (players normally walk along -Z).
+  const hallwayForward = new THREE.Vector3(0, 0, -1);
+
+  // If the camera is turned around (i.e. facing opposite the hallway's forward),
+  // then load the door.
+  if (cameraDir.dot(hallwayForward) < 0) {
+    // Use currentFront (the hallway segment the player is in) as our reference.
+    if (!endDoor && currentFront) {
+      // Calculate the camera's horizontal offset relative to the current segment.
+      const cameraOffsetX = camera.position.x - currentFront.position.x;
+
+      // Define a local offset for the door relative to currentFront.
+      // Because the hallway's forward is -Z, the back (entrance) of the segment is along +Z.
+      // For example, if we want the door to appear 10 units (in world terms) from the segment's origin,
+      // set doorZOffset to 10. (Adjust this value to bring the door closer or farther.)
+      const doorZOffset = 1; // Try 10 (or tweak this number)
+      const doorLocalOffset = new THREE.Vector3(cameraOffsetX, 0, doorZOffset);
+
+      // Convert the local offset to a world position.
+      const doorPos = currentFront.localToWorld(doorLocalOffset.clone());
+      console.log("Computed doorPos:", doorPos);
+
+      // Load the door model.
+      gltfLoader.load(
+        "./public/Char/end-door.glb",
+        (gltf) => {
+          endDoor = gltf.scene;
+          endDoor.scale.set(1, 1, 1);
+          endDoor.position.copy(doorPos);
+          // Align the door's rotation with currentFront so it appears flush with the hallway.
+          endDoor.rotation.copy(currentFront.rotation);
+          scene.add(endDoor);
+          console.log("✅ End door loaded at", doorPos);
+
+          // Optionally add an AxesHelper to visualize its position:
+          const helper = new THREE.AxesHelper(2);
+          helper.position.copy(doorPos);
+          scene.add(helper);
+        },
+        undefined,
+        (error) => {
+          console.error("❌ Error loading end door:", error);
+        }
+      );
+    }
+  } else {
+    // If the camera is not turned around, remove the door (if present).
+    if (endDoor) {
+      scene.remove(endDoor);
+      endDoor = null;
+      console.log("🚪 End door removed (camera facing forward).");
+    }
+  }
+};
+
+//For debugging and finding mesh names
+function logSceneNames(object, depth = 0) {
+  console.log(" ".repeat(depth * 2) + object.name);
+  object.children.forEach((child) => logSceneNames(child, depth + 1));
+}
+
+//Also for debugging only
+function addCollisionOutlines(scene) {
+  scene.traverse((child) => {
+    if (child.isMesh && child.name.startsWith("collision_")) {
+      // Create an EdgesGeometry from the child's geometry.
+      const edges = new THREE.EdgesGeometry(child.geometry);
+      // Create a line material with a red color.
+      const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
+      // Create line segments from the edges.
+      const outline = new THREE.LineSegments(edges, lineMaterial);
+      // Optionally, adjust renderOrder to make sure the outline is visible on top.
+      outline.renderOrder = 1;
+      // Add the outline as a child of the collision mesh.
+      child.add(outline);
+      // If the collision object was hidden (child.material.visible = false), you might want to re-enable it for debugging:
+      // child.material.visible = true;
+    }
+  });
+}
 
 // Animation Loop
 const clock = new THREE.Clock();
@@ -456,22 +515,28 @@ const animate = () => {
   // Update all mixers
   mixers.forEach((mixer) => mixer.update(delta));
 
+  if (inInfiniteHallway) {
+    if (hallwayA) collisionManager.updateCollisionBoxes(hallwayA);
+    if (hallwayB) collisionManager.updateCollisionBoxes(hallwayB);
+  }
+
   // ✅ Ensure door interaction check happens continuously
   checkDoorInteraction();
   checkEndDoorAppearance();
 
   // Update the item inspector
   noteInspector.update(scene, camera);
-//   noteInspector2.update(scene, camera);
+  noteInspector2.update(scene, camera);
+  noteInspector3.update(scene, camera);
+
+  //debugging only
+  // addCollisionOutlines(scene);
+
 
   // Render using the composer
   composer.render(delta);
 
-//   // debugging only
-//   logSceneNames(scene);
-
-
-
-
+  //    debugging only
+  //   logSceneNames(scene);
 };
 animate();

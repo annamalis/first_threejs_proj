@@ -24,6 +24,28 @@ class CollisionManager {
 
         return false;
     }
+
+    updateModel(model, newBoundingBox) {
+        for (let item of this.models) {
+           if (item.model === model) {
+              item.boundingBox = newBoundingBox;
+              break;
+           }
+        }
+     }
+
+     updateCollisionBoxes(object) {
+        object.traverse((child) => {
+          if (child.isMesh && child.name.startsWith("collision_")) {
+            // Recompute the bounding box based on the current world matrix.
+            child.geometry.computeBoundingBox();
+            // Optionally, you can update the stored bounding box in your collision manager.
+            // For example:
+            const updatedBox = new THREE.Box3().setFromObject(child);
+            collisionManager.updateModel(child, updatedBox); // You'll need to implement updateModel
+          }
+        });
+      }
 }
 
 export const collisionManager = new CollisionManager();
