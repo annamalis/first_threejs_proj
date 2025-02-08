@@ -429,18 +429,15 @@ const checkEndDoorAppearance = () => {
   if (cameraDir.dot(hallwayForward) < 0) {
     // Use currentFront (the hallway segment the player is in) as our reference.
     if (!endDoor && currentFront) {
-      // Calculate the camera's horizontal offset relative to the current segment.
-      const cameraOffsetX = camera.position.x - currentFront.position.x;
-
       // Define a local offset for the door relative to currentFront.
       // Because the hallway's forward is -Z, the back (entrance) of the segment is along +Z.
       // For example, if we want the door to appear 10 units (in world terms) from the segment's origin,
       // set doorZOffset to 10. (Adjust this value to bring the door closer or farther.)
       const doorZOffset = 1; // Try 10 (or tweak this number)
-      const doorLocalOffset = new THREE.Vector3(cameraOffsetX, 0, doorZOffset);
+      const doorLocalOffset = new THREE.Vector3(47.1, 0, doorZOffset);
 
       // Convert the local offset to a world position.
-      const doorPos = currentFront.localToWorld(doorLocalOffset.clone());
+      const doorPos = currentFront.localToWorld(doorLocalOffset);
       console.log("Computed doorPos:", doorPos);
 
       // Load the door model.
