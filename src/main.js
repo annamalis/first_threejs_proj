@@ -329,7 +329,6 @@ const loadInfiniteHallway = () => {
         }
       });
 
-
       // Now load the second hallway (Hallway B) behind it
       gltfLoader.load(
         "./public/Char/infin-hallwy2.glb",
@@ -350,8 +349,6 @@ const loadInfiniteHallway = () => {
               child.material.visible = false;
             }
           });
-
-         
 
           // Set our initial roles:
           // The front segment (the one the player is in) is the one with the lower Z.
@@ -429,16 +426,16 @@ const checkEndDoorAppearance = () => {
   if (cameraDir.dot(hallwayForward) < 0) {
     // Use currentFront (the hallway segment the player is in) as our reference.
     if (!endDoor && currentFront) {
-      // Define a local offset for the door relative to currentFront.
-      // Because the hallway's forward is -Z, the back (entrance) of the segment is along +Z.
-      // For example, if we want the door to appear 10 units (in world terms) from the segment's origin,
-      // set doorZOffset to 10. (Adjust this value to bring the door closer or farther.)
-      const doorZOffset = 1; // Try 10 (or tweak this number)
-      const doorLocalOffset = new THREE.Vector3(47.1, 0, doorZOffset);
+      const doorDistance = 4;
 
-      // Convert the local offset to a world position.
-      const doorPos = currentFront.localToWorld(doorLocalOffset);
+      let doorPos = new THREE.Vector3(
+        47.1, // Fixed x (hallway center)
+        -1, // Fixed y (to match other scenes)
+        camera.position.z + doorDistance // Subtract doorDistance from the camera's z
+      );
+
       console.log("Computed doorPos:", doorPos);
+      console.log("Camera coordinates:", camera.position);
 
       // Load the door model.
       gltfLoader.load(
@@ -528,7 +525,6 @@ const animate = () => {
 
   //debugging only
   // addCollisionOutlines(scene);
-
 
   // Render using the composer
   composer.render(delta);
