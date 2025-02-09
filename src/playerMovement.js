@@ -15,6 +15,10 @@ export const trackKeys = () => {
 };
 
 export const moveCamera = (collisionCallback) => {
+    if (window.comboLockActive) {
+        return;
+      }
+
     const direction = new THREE.Vector3();
     camera.getWorldDirection(direction);
 

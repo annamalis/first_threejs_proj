@@ -91,6 +91,9 @@ const comboLockState = {
     comboLockState.activeSlot = 0;
     comboLockState.digits = [0, 0, 0];
     updateComboLockUI();
+
+    // Set the flag so that camera movement stops
+  window.comboLockActive = true;
   
     // Add the keydown event listener for handling input.
     document.addEventListener("keydown", handleComboLockInput);
@@ -100,6 +103,9 @@ const comboLockState = {
     // Hide the overlay container.
     const container = document.getElementById("comboLockContainer");
     container.style.display = "none";
+
+    window.comboLockActive = false;
+
   
     // Remove the keydown event listener.
     document.removeEventListener("keydown", handleComboLockInput);
