@@ -396,7 +396,13 @@ const loadInfiniteHallway = () => {
 
 };
 
-window.loadInfiniteHallway = loadInfiniteHallway;
+function transitionToInfiniteHallway() {
+    soundManager.stopMainTheme();
+    soundManager.playHallwayTheme();
+    loadInfiniteHallway(); // Your existing function to transition the scene.
+  }
+
+window.transitionToInfiniteHallway = transitionToInfiniteHallway;
 
 const trackPlayerProgress = () => {
   // Define a threshold – when the player reaches 75% into the current front segment,

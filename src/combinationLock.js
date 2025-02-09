@@ -72,7 +72,7 @@ const comboLockState = {
         alert("Code correct! Entering hallway...");
         hideCombinationLockUI();
         // Here you would trigger the transition to the infinite hallway.
-        window.loadInfiniteHallway();
+        window.transitionToInfiniteHallway();
       } else {
         alert("Incorrect code. Try again.");
       }
