@@ -1,23 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<title>My first three.js app</title>
-		<link rel="stylesheet" type="text/css" href="main.css">
-		<style>
-			body { margin: 0; }
-		</style>
-	</head>
-	<body>
-		<canvas class="webgl"></canvas>
-		<script type="module" src="/main.js"></script>
-		<div id="inventoryHUD" style="position: absolute; top: 10px; left: 10px; color: white;">
-			Inventory: 
-		</div>
-		<div id="interactionPrompt" style="position: absolute; bottom: 10%; left: 50%; transform: translateX(-50%); color: white; font-family: sans-serif; display: none; background-color: rgba(0, 0, 0, 0.5); padding: 8px; border-radius: 4px;">
-			Pick Up - Press F
-		</div>
-		<div id="doorPrompt" style="position: absolute; bottom: 10%; left: 50%; transform: translateX(-50%); color: white; font-family: sans-serif; display: none; background-color: rgba(0, 0, 0, 0.5); padding: 8px; border-radius: 4px;">Door Prompt</div>
+  <head>
+    <meta charset="utf-8" />
+    <title>My first three.js app</title>
+    <link rel="stylesheet" type="text/css" href="main.css" />
+    <style>
+      body {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas class="webgl"></canvas>
+    <script type="module" src="/main.js"></script>
+    <div
+      id="inventoryHUD"
+      style="position: absolute; top: 10px; left: 10px; color: white"
+    >
+      Inventory:
+    </div>
+	<div
+  id="doorPrompt"
+  style="position: absolute; bottom: 10%; left: 50%; transform: translateX(-50%); color: white; font-family: sans-serif; display: none; background-color: rgba(0, 0, 0, 0.5); padding: 8px; border-radius: 4px;"
+>
+  Door Prompt
+</div>
+    <div
+  id="interactionPrompt"
+  style="
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-family: sans-serif;
+    display: none;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 8px;
+    border-radius: 4px;
+    z-index: 1000;
+  "
+>
+  Pick Up - Press F
+</div>
+
+    <div id="comboLockContainer" style="display: none;">
+		<!-- Lock background image -->
+		<img id="comboLockBg" src="public/char/lock/lock-ui.png" alt="Lock Background">
 		
-	</body>
+		<!-- Digit images -->
+		<img id="digitTop" class="combo-digit" src="public/char/lock/lock-top-0.png" alt="Top Digit">
+		<img id="digitMid" class="combo-digit" src="public/char/lock/lock-mid-0.png" alt="Middle Digit">
+		<img id="digitBot" class="combo-digit" src="public/char/lock/lock-bot-0.png" alt="Bottom Digit">
+		
+		<!-- Arrow indicator images -->
+		<img id="arrowTop" class="arrow-indicator" src="public/char/lock/arrow-top.png" alt="Arrow Top">
+		<img id="arrowMid" class="arrow-indicator" src="public/char/lock/arrow-mid.png" alt="Arrow Mid">
+		<img id="arrowBot" class="arrow-indicator" src="public/char/lock/arrow-bot.png" alt="Arrow Bottom">
+	  </div>
+  </body>
 </html>

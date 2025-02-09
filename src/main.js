@@ -23,6 +23,8 @@ import {
 } from "./inventoryHUD.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { ItemInspector } from "./itemInspection.js";
+import { showCombinationLockUI, hideCombinationLockUI } from './combinationLock.js';
+
 
 // Variables
 const mixers = []; // Array to store all animation mixers
@@ -184,11 +186,14 @@ const loadExterior = () => {
 
 // Check proximity to the exterior OR interior door
 const checkDoorInteraction = () => {
+   
+
   if (insideHouse === null || inInfiniteHallway) return;
 
   let promptShown = false;
 
   if (!insideHouse && exteriorDoor) {
+
     // Handle entering the house
     const doorWorldPosition = new THREE.Vector3();
     exteriorDoor.getWorldPosition(doorWorldPosition);
@@ -197,6 +202,7 @@ const checkDoorInteraction = () => {
 
     if (distance < 2) {
       showDoorPrompt("Press SPACE to Enter");
+      console.log("Showing Door prompt")
       promptShown = true;
       if (keys[" "]) {
         hideDoorPrompt();
@@ -271,16 +277,19 @@ const checkDoorInteraction = () => {
       promptShown = true;
 
       if (keys[" "]) {
-        showCodeInput((enteredCode) => {
-          if (enteredCode === correctCode) {
-            console.log("✅ Code correct! Entering hallway...");
-            hideDoorPrompt();
-            loadInfiniteHallway();
-          } else {
-            console.log("❌ Incorrect code.");
-            alert("Incorrect code. Try again!");
-          }
-        });
+
+        showCombinationLockUI();
+        
+        // showCodeInput((enteredCode) => {
+        //   if (enteredCode === correctCode) {
+        //     console.log("✅ Code correct! Entering hallway...");
+        //     hideDoorPrompt();
+        //     loadInfiniteHallway();
+        //   } else {
+        //     console.log("❌ Incorrect code.");
+        //     alert("Incorrect code. Try again!");
+        //   }
+        // });
 
         // ✅ RESET SPACE KEY so it doesn't trigger twice
         keys[" "] = false;

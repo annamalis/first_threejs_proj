@@ -12,6 +12,7 @@
   font-size: 16px;
   text-align: center;
   white-space: nowrap;
+  z-index: 1000;
 }
 
 .item-prompt {
@@ -26,4 +27,32 @@
   padding: 8px;
   border-radius: 4px;
   z-index: 1001;
+}
+
+/* Container for the combination lock */
+#comboLockContainer {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2000;
+  width: 650px;
+  height: 650px;
+  display: none; /* hidden by default */
+}
+
+/* All images inside the container are stacked absolutely */
+#comboLockContainer img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 650px;
+  height: 650px;
+}
+
+/* Arrow indicator images */
+/* They are also full-sized, but only one will be visible at a time */
+.arrow-indicator {
+  display: none; /* Hide all arrows by default */
+  z-index: 5; /* Ensure they are above the digits */
 }
