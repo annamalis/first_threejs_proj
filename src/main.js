@@ -24,6 +24,7 @@ import {
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { ItemInspector } from "./itemInspection.js";
 import { showCombinationLockUI, hideCombinationLockUI } from './combinationLock.js';
+import SoundManager from './soundManager.js';
 
 
 // Variables
@@ -41,6 +42,18 @@ let currentFront = null; // The hallway the player is currently in
 let currentBack = null; // The hallway that is behind (and will be repositioned)
 const hallwayLength = 32.518; // Exact Blender length
 let endDoor = null;
+
+//Audio
+const soundManager = new SoundManager(camera);
+soundManager.loadMainTheme("public/audio/thishouse-main.wav");
+soundManager.loadHallwayTheme("public/audio/thishouse-hallway.wav");
+
+//Start button for testing audio
+document.getElementById("startGameButton").addEventListener("click", () => {
+    soundManager.playMainTheme();
+    // Optionally hide the button:
+    document.getElementById("startGameButton").style.display = "none";
+  });
 
 //items to inspect
 const noteInspector = new ItemInspector({
@@ -303,6 +316,7 @@ const checkDoorInteraction = () => {
 };
 
 const loadInfiniteHallway = () => {
+    hideDoorPrompt();
   console.log("🚪 Entering infinite hallway...");
   inInfiniteHallway = true;
 
@@ -379,7 +393,10 @@ const loadInfiniteHallway = () => {
       console.error("❌ Error loading first hallway:", error);
     }
   );
+
 };
+
+window.loadInfiniteHallway = loadInfiniteHallway;
 
 const trackPlayerProgress = () => {
   // Define a threshold – when the player reaches 75% into the current front segment,
