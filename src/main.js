@@ -428,10 +428,15 @@ const checkEndDoorAppearance = () => {
     if (!endDoor && currentFront) {
       const doorDistance = 4;
 
+      let computedDoorZ = camera.position.z + doorDistance;
+      if (computedDoorZ > currentFront.position.z) {
+        computedDoorZ = currentFront.position.z;
+      }
+
       let doorPos = new THREE.Vector3(
         47.1, // Fixed x (hallway center)
         -1, // Fixed y (to match other scenes)
-        camera.position.z + doorDistance // Subtract doorDistance from the camera's z
+        computedDoorZ // Subtract doorDistance from the camera's z
       );
 
       console.log("Computed doorPos:", doorPos);
