@@ -44,6 +44,7 @@ const hallwayLength = 32.518; // Exact Blender length
 let endDoor = null;
 let footstepsPlaying = false;
 let currentFootstepSound = null; 
+window.startScreenActive = true;
 
 //Audio
 const soundManager = new SoundManager(camera);
@@ -74,11 +75,12 @@ document.addEventListener("keydown", function startGameHandler(event) {
       }
       // Start the main theme.
       soundManager.playMainTheme();
+
+      window.startScreenActive = false;
   
       // Hide the start screen.
       const startScreen = document.getElementById("startScreen");
       startScreen.style.display = "none";
-  
       // Remove this event listener now that the game has started.
       document.removeEventListener("keydown", startGameHandler);
     }
@@ -651,3 +653,4 @@ const animate = () => {
   //   logSceneNames(scene);
 };
 animate();
+

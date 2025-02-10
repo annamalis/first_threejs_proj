@@ -15,6 +15,7 @@ export const trackKeys = () => {
 };
 
 export const moveCamera = (collisionCallback) => {
+    if (window.startScreenActive) return;
     if (window.comboLockActive) {
         return;
       }
