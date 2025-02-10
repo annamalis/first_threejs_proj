@@ -42,17 +42,46 @@ let currentFront = null; // The hallway the player is currently in
 let currentBack = null; // The hallway that is behind (and will be repositioned)
 const hallwayLength = 32.518; // Exact Blender length
 let endDoor = null;
+let footstepsPlaying = false;
+let currentFootstepSound = null; 
 
 //Audio
 const soundManager = new SoundManager(camera);
 soundManager.loadMainTheme("public/audio/thishouse-main.wav");
 soundManager.loadHallwayTheme("public/audio/thishouse-hallway.wav");
+//soundfx
+const fxFiles = [
+    "knock.mp3",
+    "door-open.mp3",
+    "pills.wav",
+    "sink-off.wav",
+    "sink-stream.wav",
+    "paper.wav"
+  ];
+  soundManager.loadSoundEffects(fxFiles, "public/audio/fx");
+  soundManager.loadFootstepSounds();
+//debugging
+window.soundManager = soundManager;
 
 //Start button for testing audio
-document.getElementById("startGameButton").addEventListener("click", () => {
-    soundManager.playMainTheme();
-    // Optionally hide the button:
-    document.getElementById("startGameButton").style.display = "none";
+document.addEventListener("keydown", function startGameHandler(event) {
+    if (event.key === " ") {  // SPACE key
+      // Optionally, resume AudioContext here if needed.
+      if (soundManager.listener.context.state === 'suspended') {
+        soundManager.listener.context.resume().then(() => {
+          console.log("AudioContext resumed");
+        });
+      }
+      // Start the main theme.
+      soundManager.playMainTheme();
+  
+      // Hide the start screen.
+      const startScreen = document.getElementById("startScreen");
+      startScreen.style.display = "none";
+  
+      // Remove this event listener now that the game has started.
+      document.removeEventListener("keydown", startGameHandler);
+    }
   });
 
 //items to inspect
@@ -89,6 +118,9 @@ trackKeys();
 // Function to load the house interior
 const loadInterior = () => {
   console.log("Transitioning to house interior...");
+
+  //Play sound
+  soundManager.playSoundEffect("door-open.mp3");
 
   // Remove only the exterior objects, keeping camera & lights
   scene.children
@@ -161,6 +193,7 @@ const loadInterior = () => {
 //Function to load exterior
 const loadExterior = () => {
   console.log("Transitioning to house exterior...");
+  soundManager.playSoundEffect("door-open.mp3");
 
   // ✅ Prevents interactions for a short time
   insideHouse = null;
@@ -316,6 +349,7 @@ const checkDoorInteraction = () => {
 };
 
 const loadInfiniteHallway = () => {
+    soundManager.playSoundEffect("door-open.mp3");
     hideDoorPrompt();
   console.log("🚪 Entering infinite hallway...");
   inInfiniteHallway = true;
@@ -533,6 +567,51 @@ function addCollisionOutlines(scene) {
   });
 }
 
+function updateFootstepSound() {
+    //debugging
+    console.log("insideHouse:", insideHouse, "inInfiniteHallway:", inInfiniteHallway);
+
+    // Determine if the player is moving (using your keys, for example)
+    const isMoving = keys["w"] || keys["a"] || keys["s"] || keys["d"] ||
+                     keys["ArrowUp"] || keys["ArrowDown"] || keys["ArrowLeft"] || keys["ArrowRight"];
+    
+    // Determine which footstep sound to play:
+    let desiredFootstep;
+  if (inInfiniteHallway) {
+    desiredFootstep = soundManager.footstepsHallway;
+  } else if (insideHouse) {
+    desiredFootstep = soundManager.footstepsInside;
+  } else {
+    desiredFootstep = soundManager.footstepsOutside;
+  }
+    
+    // If the player is moving and the desired footstep sound is not already playing:
+  if (isMoving) {
+    // If no footstep sound is currently playing, or the wrong one is playing:
+    if (!footstepsPlaying || currentFootstepSound !== desiredFootstep) {
+      // Stop any currently playing footsteps.
+      soundManager.stopAllFootsteps();
+      // Start the desired footstep sound.
+      currentFootstepSound = desiredFootstep;
+      if (currentFootstepSound === soundManager.footstepsHallway) {
+        soundManager.playFootstepsHallway();
+      } else if (currentFootstepSound === soundManager.footstepsInside) {
+        soundManager.playFootstepsInside();
+      } else if (currentFootstepSound === soundManager.footstepsOutside) {
+        soundManager.playFootstepsOutside();
+      }
+      footstepsPlaying = true;
+    }
+  } else {
+    // If the player is not moving and footsteps are playing, stop them.
+    if (footstepsPlaying) {
+      soundManager.stopAllFootsteps();
+      footstepsPlaying = false;
+      currentFootstepSound = null;
+    }
+  }
+  }
+
 // Animation Loop
 const clock = new THREE.Clock();
 const animate = () => {
@@ -562,6 +641,8 @@ const animate = () => {
 
   //debugging only
   // addCollisionOutlines(scene);
+
+  updateFootstepSound();
 
   // Render using the composer
   composer.render(delta);

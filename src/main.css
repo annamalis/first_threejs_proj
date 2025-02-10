@@ -1,3 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+#startGamePrompt {
+    margin-top: 20px;
+    font-size: 20px;
+    color: white;
+    font-family: 'Press Start 2P', cursive; /* A pixelated font */
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
 #interactionPrompt {
   position: absolute;
   bottom: 10%;
@@ -56,3 +67,46 @@
   display: none; /* Hide all arrows by default */
   z-index: 5; /* Ensure they are above the digits */
 }
+
+#startScreen {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 3000;  /* Ensure it appears on top of your canvas and other UI */
+  }
+  
+  /* The game logo */
+  #gameLogo {
+    width: 700px;  /* Adjust as needed */
+    height: auto;
+    /* Apply a CSS animation for the slight rotation effect */
+    animation: rotateLogo 2s infinite ease-in-out;
+    /* For smooth transformation, also include transform-origin if needed */
+    transform-origin: center center;
+  }
+  
+  /* Keyframes for rotating the logo 15 degrees back and forth along z-axis */
+  @keyframes rotateLogo {
+    0%   { transform: rotateZ(-15deg); }
+    50%  { transform: rotateZ(15deg); }
+    100% { transform: rotateZ(-15deg); }
+  }
+  
+  /* Style for the start button */
+  #startGameButton {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    background-color: #0077cc;
+    color: white;
+    transition: background-color 0.3s;
+  }
+  
+  #startGameButton:hover {
+    background-color: #005fa3;
+  }
