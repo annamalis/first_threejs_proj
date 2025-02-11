@@ -525,17 +525,26 @@ const checkEndDoorAppearance = () => {
           scene.add(endDoor);
           console.log("✅ End door loaded at", doorPos);
 
-          // Optionally add an AxesHelper to visualize its position:
-          const helper = new THREE.AxesHelper(2);
-          helper.position.copy(doorPos);
-          scene.add(helper);
+          // Show a door prompt (optional) so the player knows to press SPACE.
+          showDoorPrompt("Press SPACE to Open");
+
+          
         },
         undefined,
         (error) => {
           console.error("❌ Error loading end door:", error);
         }
       );
-    }
+    } else if (endDoor) {
+        // If the end door is already loaded and visible, check for interaction.
+        // (For instance, the door prompt is already shown.)
+        if (keys[" "]) {
+          keys[" "] = false;
+          // Trigger the end game transition:
+          triggerEndGameTransition();
+        }
+      }
+
   } else {
     // If the camera is not turned around, remove the door (if present).
     if (endDoor) {
@@ -615,6 +624,36 @@ function updateFootstepSound() {
       currentFootstepSound = null;
     }
   }
+  }
+
+  function triggerEndGameTransition() {
+    // Ensure the overlay is visible in the DOM.
+    const overlay = document.getElementById("endGameOverlay");
+    
+    // --- Animate the Door Swing ---
+    // Assume endDoor is your door model that has just been loaded.
+    // We want to rotate the door about its y-axis (for example, by 90 degrees).
+    // Adjust these values based on your door model’s pivot and desired effect.
+    const duration = 2000; // Duration in milliseconds (2 seconds)
+    const startRotation = endDoor.rotation.y;
+    const targetRotation = startRotation - Math.PI / 2; // Rotate 90° counterclockwise
+    const startTime = performance.now();
+  
+    function animateDoor(time) {
+      const elapsed = time - startTime;
+      const t = Math.min(elapsed / duration, 1); // Interpolation factor from 0 to 1
+      // Linear interpolation; you could use easing for smoother effect.
+      endDoor.rotation.y = startRotation + t * (targetRotation - startRotation);
+      if (t < 1) {
+        requestAnimationFrame(animateDoor);
+      }
+    }
+    requestAnimationFrame(animateDoor);
+  
+    // --- Fade in the White Overlay ---
+    // Use CSS transitions to fade the overlay from transparent to opaque.
+    overlay.style.transition = "opacity 2s ease-in-out";
+    overlay.style.opacity = 1;
   }
 
 // Animation Loop
