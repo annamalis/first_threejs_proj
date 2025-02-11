@@ -23,6 +23,7 @@ class ItemInspector {
     this.inspectDistance = options.inspectDistance || 3;
     this.promptInspect = options.promptInspect || "Press Space to Inspect";
     this.promptExit = options.promptExit || "Press Space to Exit";
+    this.soundEffect = options.soundEffect;  // sound effect
     this.active = false; // whether the inspector is active (overlay is shown)
     this.inspectionDiv = null; // overlay DOM element
     this.itemMesh = null; // the target mesh from the scene
@@ -128,6 +129,11 @@ class ItemInspector {
     }
     // Change the prompt to the exit message
     this.showPrompt(this.promptExit);
+
+    // Play sound fx
+    if (this.soundEffect && window.soundManager) {
+      window.soundManager.playSoundEffect(this.soundEffect);
+    }
   }
 
   /**
@@ -137,6 +143,9 @@ class ItemInspector {
     this.active = false;
     if (this.inspectionDiv) {
       this.inspectionDiv.style.display = "none";
+    }
+    if (this.soundEffect && window.soundManager) {
+      window.soundManager.playSoundEffect(this.soundEffect);
     }
     this.hidePrompt();
   }

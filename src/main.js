@@ -93,6 +93,7 @@ const noteInspector = new ItemInspector({
   inspectDistance: 4,
   promptInspect: "Press Space to Inspect",
   promptExit: "Press Space to Exit",
+  soundEffect: "paper.wav"
 });
 
 const noteInspector2 = new ItemInspector({
@@ -101,6 +102,7 @@ const noteInspector2 = new ItemInspector({
   inspectDistance: 4,
   promptInspect: "Press Space to Inspect",
   promptExit: "Press Space to Exit",
+  soundEffect: "paper.wav"
 });
 
 const noteInspector3 = new ItemInspector({
@@ -109,6 +111,7 @@ const noteInspector3 = new ItemInspector({
   inspectDistance: 4,
   promptInspect: "Press Space to Inspect",
   promptExit: "Press Space to Exit",
+  soundEffect: "pills.wav"
 });
 
 // Setup scene and environment
