@@ -681,8 +681,20 @@ function updateFootstepSound() {
   
     // --- Fade in the White Overlay ---
     // Use CSS transitions to fade the overlay from transparent to opaque.
-    overlay.style.transition = "opacity 2s ease-in-out";
+    overlay.style.transition = "opacity 1.5s ease-in-out";
     overlay.style.opacity = 1;
+
+//     setTimeout(() => {
+//     const endGameText = document.getElementById("endGameText");
+//     endGameText.style.opacity = 1;
+//   }, 1500);  // Adjust delay as needed so it appears at the right time.
+  
+  // After the transition completes, you might restart the game.
+  setTimeout(() => {
+    // Reset state, e.g. reload the page:
+    window.location.reload();
+    // Or, if you have a game reset function, call it here.
+  }, 4000); // Adjust duration as needed.
   }
 
 // Animation Loop

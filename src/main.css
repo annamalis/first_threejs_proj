@@ -123,3 +123,44 @@
     pointer-events: none;   /* Allow clicks to pass through if needed */
     transition: opacity 2s ease-in-out; /* Smooth fade-in transition */
   }
+
+  #endGameText {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Press Start 2P', cursive;  /* A pixel art font from Google Fonts, for example */
+    font-size: 3rem;
+    color: black;
+    opacity: 0;         /* Hidden initially */
+    z-index: 6000;      /* Above the overlay */
+    /* Add a glitch animation */
+    animation: glitch 1s steps(10, end) infinite;
+  }
+  
+  @keyframes glitch {
+    0% {
+      text-shadow: 2px 2px red;
+      transform: translate(-50%, -50%) skew(0deg);
+    }
+    20% {
+      text-shadow: -2px -2px blue;
+      transform: translate(calc(-50% + 5px), calc(-50% - 5px)) skew(5deg);
+    }
+    40% {
+      text-shadow: 2px 2px green;
+      transform: translate(-50%, -50%) skew(-5deg);
+    }
+    60% {
+      text-shadow: -2px -2px red;
+      transform: translate(calc(-50% - 5px), calc(-50% + 5px)) skew(2deg);
+    }
+    80% {
+      text-shadow: 2px 2px blue;
+      transform: translate(-50%, -50%) skew(-2deg);
+    }
+    100% {
+      text-shadow: -2px -2px green;
+      transform: translate(-50%, -50%) skew(0deg);
+    }
+  }
