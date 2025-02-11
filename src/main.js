@@ -45,6 +45,7 @@ let endDoor = null;
 let footstepsPlaying = false;
 let currentFootstepSound = null; 
 window.startScreenActive = true;
+window.endGameTriggered = false;
 
 //Audio
 const soundManager = new SoundManager(camera);
@@ -475,6 +476,7 @@ const checkCollision = (newPosition) => {
 };
 
 const checkEndDoorAppearance = () => {
+    if (window.endGameTriggered) return;
   // Only run this logic when we are in the infinite hallway.
   if (!inInfiniteHallway) {
     if (endDoor) {
@@ -495,6 +497,7 @@ const checkEndDoorAppearance = () => {
   // If the camera is turned around (i.e. facing opposite the hallway's forward),
   // then load the door.
   if (cameraDir.dot(hallwayForward) < 0) {
+    
     // Use currentFront (the hallway segment the player is in) as our reference.
     if (!endDoor && currentFront) {
       const doorDistance = 4;
@@ -505,7 +508,7 @@ const checkEndDoorAppearance = () => {
       }
 
       let doorPos = new THREE.Vector3(
-        47.1, // Fixed x (hallway center)
+        47.1-1.89, // Fixed x (hallway center)
         -1, // Fixed y (to match other scenes)
         computedDoorZ // Subtract doorDistance from the camera's z
       );
@@ -517,13 +520,38 @@ const checkEndDoorAppearance = () => {
       gltfLoader.load(
         "./public/Char/end-door.glb",
         (gltf) => {
-          endDoor = gltf.scene;
-          endDoor.scale.set(1, 1, 1);
-          endDoor.position.copy(doorPos);
-          // Align the door's rotation with currentFront so it appears flush with the hallway.
-          endDoor.rotation.copy(currentFront.rotation);
-          scene.add(endDoor);
-          console.log("✅ End door loaded at", doorPos);
+          // Assume gltf.scene is your door object.
+      const doorOriginal = gltf.scene;
+      
+      // Create a new group that will serve as the door's pivot.
+      const doorPivotGroup = new THREE.Group();
+      
+      // Compute the bounding box of the door.
+      const bbox = new THREE.Box3().setFromObject(doorOriginal);
+      const size = bbox.getSize(new THREE.Vector3());
+      
+      // For example, if you want the door to swing open from its left side,
+      // you want the pivot at the left edge. In the door's local space, if the door's
+      // geometry is centered, then the left edge is at -size.x/2.
+      // To shift the geometry so that its left edge aligns with the group's origin,
+      // move the door by +size.x/2 along the x-axis.
+      doorOriginal.position.x = size.x / 2;
+      
+      // Add the door model to the pivot group.
+      doorPivotGroup.add(doorOriginal);
+      
+      // Now, doorPivotGroup's origin (0,0,0) corresponds to the left edge of the door.
+      // Use doorPivotGroup as your endDoor.
+      endDoor = doorPivotGroup;
+      
+      // Set scale, position, and rotation as needed.
+      endDoor.scale.set(1, 1, 1);
+      endDoor.position.copy(doorPos);
+      // (Optional) Copy the rotation from currentFront so it aligns with the hallway.
+      endDoor.rotation.copy(currentFront.rotation);
+      scene.add(endDoor);
+      
+      console.log("✅ End door loaded at", doorPos);
 
           // Show a door prompt (optional) so the player knows to press SPACE.
           showDoorPrompt("Press SPACE to Open");
@@ -535,11 +563,12 @@ const checkEndDoorAppearance = () => {
           console.error("❌ Error loading end door:", error);
         }
       );
-    } else if (endDoor) {
+    } else if (endDoor && !window.endGameTriggered) {
         // If the end door is already loaded and visible, check for interaction.
         // (For instance, the door prompt is already shown.)
         if (keys[" "]) {
           keys[" "] = false;
+          window.endGameTriggered = true;
           // Trigger the end game transition:
           triggerEndGameTransition();
         }
@@ -636,7 +665,7 @@ function updateFootstepSound() {
     // Adjust these values based on your door model’s pivot and desired effect.
     const duration = 2000; // Duration in milliseconds (2 seconds)
     const startRotation = endDoor.rotation.y;
-    const targetRotation = startRotation - Math.PI / 2; // Rotate 90° counterclockwise
+    const targetRotation = startRotation + Math.PI / 2; // Rotate 90° counterclockwise
     const startTime = performance.now();
   
     function animateDoor(time) {
