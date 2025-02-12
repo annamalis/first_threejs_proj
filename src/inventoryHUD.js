@@ -15,27 +15,6 @@ export function updateHUD() {
     hudElement.textContent = `Inventory: ${itemsString}`;
   }
 
-//   export function showPrompt(message) {
-//     const promptElement = document.getElementById('interactionPrompt');
-
-//     if (promptElement) {
-        
-//         promptElement.textContent = message; // ✅ Set the message
-//         promptElement.style.display = 'block'; // ✅ Make sure it's visible
-
-        
-//     } else {
-//         console.warn("⚠️ Warning: Prompt element not found in DOM!");
-//     }
-// }
-
-// export function hidePrompt() {
-//     const promptElement = document.getElementById('interactionPrompt');
-//     if (promptElement) {
-//         promptElement.style.display = 'none';
-//     }
-// }
-
 export function showDoorPrompt(message) {
     const promptElement = document.getElementById('doorPrompt');
     if (promptElement) {
@@ -91,3 +70,22 @@ export const showCodeInput = (callback) => {
         }
     });
 };
+
+export function showDialogue(message) {
+    const dialogueElement = document.getElementById('dialogueBox');
+    if (dialogueElement) {
+      dialogueElement.textContent = message;
+      dialogueElement.style.display = 'block';
+      // Optionally, automatically hide the dialogue after 3 seconds.
+      setTimeout(() => {
+        dialogueElement.style.display = 'none';
+      }, 3000);
+    }
+  }
+  
+  export function hideDialogue() {
+    const dialogueElement = document.getElementById('dialogueBox');
+    if (dialogueElement) {
+      dialogueElement.style.display = 'none';
+    }
+  }

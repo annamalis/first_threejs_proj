@@ -1,13 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
 
 #startGamePrompt {
-    margin-top: 20px;
-    font-size: 20px;
-    color: white;
-    font-family: 'Press Start 2P', cursive; /* A pixelated font */
-    text-transform: uppercase;
-    letter-spacing: 2px;
-  }
+  margin-top: 20px;
+  font-size: 20px;
+  color: white;
+  font-family: "Press Start 2P", cursive; /* A pixelated font */
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
 
 #interactionPrompt {
   position: absolute;
@@ -15,7 +15,7 @@
   left: 50%;
   transform: translateX(-50%);
   color: white;
-  font-family: sans-serif;
+  font-family: "Press Start 2P", cursive; 
   background-color: rgba(0, 0, 0, 0.7);
   padding: 8px;
   border-radius: 4px;
@@ -26,19 +26,48 @@
   z-index: 1000;
 }
 
+#doorPrompt {
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-family: "Press Start 2P", cursive;
+    display: none;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 8px;
+    border-radius: 4px;
+  }
+
 .item-prompt {
   position: absolute;
   bottom: 10%;
   left: 50%;
   transform: translateX(-50%);
   color: white;
-  font-family: sans-serif;
+  font-family: "Press Start 2P", cursive; 
   display: none;
   background-color: rgba(0, 0, 0, 0.5);
   padding: 8px;
   border-radius: 4px;
   z-index: 1001;
 }
+
+#dialogueBox {
+    position: fixed;
+    top: 80%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-family: "Press Start 2P", cursive;
+    padding: 12px 20px;
+    border-radius: 4px;
+    font-size: 16px;
+    z-index: 1000;
+    display: none;
+    text-align: center;
+  }
 
 /* Container for the combination lock */
 #comboLockContainer {
@@ -69,98 +98,104 @@
 }
 
 #startScreen {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    z-index: 3000;  /* Ensure it appears on top of your canvas and other UI */
-  }
-  
-  /* The game logo */
-  #gameLogo {
-    width: 700px;  /* Adjust as needed */
-    height: auto;
-    /* Apply a CSS animation for the slight rotation effect */
-    animation: rotateLogo 2s infinite ease-in-out;
-    /* For smooth transformation, also include transform-origin if needed */
-    transform-origin: center center;
-  }
-  
-  /* Keyframes for rotating the logo 15 degrees back and forth along z-axis */
-  @keyframes rotateLogo {
-    0%   { transform: rotateZ(-15deg); }
-    50%  { transform: rotateZ(15deg); }
-    100% { transform: rotateZ(-15deg); }
-  }
-  
-  /* Style for the start button */
-  #startGameButton {
-    margin-top: 20px;
-    padding: 10px 20px;
-    font-size: 18px;
-    cursor: pointer;
-    border: none;
-    border-radius: 4px;
-    background-color: #0077cc;
-    color: white;
-    transition: background-color 0.3s;
-  }
-  
-  #startGameButton:hover {
-    background-color: #005fa3;
-  }
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 3000; /* Ensure it appears on top of your canvas and other UI */
+}
 
-  #endGameOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: white;
-    opacity: 0;             /* Start fully transparent */
-    z-index: 5000;          /* Make sure it's above everything else */
-    pointer-events: none;   /* Allow clicks to pass through if needed */
-    transition: opacity 2s ease-in-out; /* Smooth fade-in transition */
-  }
+/* The game logo */
+#gameLogo {
+  width: 700px; /* Adjust as needed */
+  height: auto;
+  /* Apply a CSS animation for the slight rotation effect */
+  animation: rotateLogo 2s infinite ease-in-out;
+  /* For smooth transformation, also include transform-origin if needed */
+  transform-origin: center center;
+}
 
-  #endGameText {
-    position: fixed;
-    top: 40%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-family: 'Press Start 2P', cursive;  /* A pixel art font from Google Fonts, for example */
-    font-size: 3rem;
-    color: black;
-    opacity: 0;         /* Hidden initially */
-    z-index: 6000;      /* Above the overlay */
-    /* Add a glitch animation */
-    animation: glitch 1s steps(10, end) infinite;
+/* Keyframes for rotating the logo 15 degrees back and forth along z-axis */
+@keyframes rotateLogo {
+  0% {
+    transform: rotateZ(-15deg);
   }
-  
-  @keyframes glitch {
-    0% {
-      text-shadow: 2px 2px red;
-      transform: translate(-50%, -50%) skew(0deg);
-    }
-    20% {
-      text-shadow: -2px -2px blue;
-      transform: translate(calc(-50% + 5px), calc(-50% - 5px)) skew(5deg);
-    }
-    40% {
-      text-shadow: 2px 2px green;
-      transform: translate(-50%, -50%) skew(-5deg);
-    }
-    60% {
-      text-shadow: -2px -2px red;
-      transform: translate(calc(-50% - 5px), calc(-50% + 5px)) skew(2deg);
-    }
-    80% {
-      text-shadow: 2px 2px blue;
-      transform: translate(-50%, -50%) skew(-2deg);
-    }
-    100% {
-      text-shadow: -2px -2px green;
-      transform: translate(-50%, -50%) skew(0deg);
-    }
+  50% {
+    transform: rotateZ(15deg);
   }
+  100% {
+    transform: rotateZ(-15deg);
+  }
+}
+
+/* Style for the start button */
+#startGameButton {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 18px;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  background-color: #0077cc;
+  color: white;
+  transition: background-color 0.3s;
+}
+
+#startGameButton:hover {
+  background-color: #005fa3;
+}
+
+#endGameOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  opacity: 0; /* Start fully transparent */
+  z-index: 5000; /* Make sure it's above everything else */
+  pointer-events: none; /* Allow clicks to pass through if needed */
+  transition: opacity 2s ease-in-out; /* Smooth fade-in transition */
+}
+
+#endGameText {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: "Press Start 2P", cursive; /* A pixel art font from Google Fonts, for example */
+  font-size: 3rem;
+  color: black;
+  opacity: 0; /* Hidden initially */
+  z-index: 6000; /* Above the overlay */
+  /* Add a glitch animation */
+  animation: glitch 1s steps(10, end) infinite;
+}
+
+@keyframes glitch {
+  0% {
+    text-shadow: 2px 2px red;
+    transform: translate(-50%, -50%) skew(0deg);
+  }
+  20% {
+    text-shadow: -2px -2px blue;
+    transform: translate(calc(-50% + 5px), calc(-50% - 5px)) skew(5deg);
+  }
+  40% {
+    text-shadow: 2px 2px green;
+    transform: translate(-50%, -50%) skew(-5deg);
+  }
+  60% {
+    text-shadow: -2px -2px red;
+    transform: translate(calc(-50% - 5px), calc(-50% + 5px)) skew(2deg);
+  }
+  80% {
+    text-shadow: 2px 2px blue;
+    transform: translate(-50%, -50%) skew(-2deg);
+  }
+  100% {
+    text-shadow: -2px -2px green;
+    transform: translate(-50%, -50%) skew(0deg);
+  }
+}

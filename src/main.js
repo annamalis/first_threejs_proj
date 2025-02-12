@@ -23,11 +23,12 @@ import {
 } from "./inventoryHUD.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { ItemInspector } from "./itemInspection.js";
-import { showCombinationLockUI, hideCombinationLockUI } from './combinationLock.js';
-import SoundManager from './soundManager.js';
-import LoadingManagerWrapper from './loadingManager.js';
-
-
+import {
+  showCombinationLockUI,
+  hideCombinationLockUI,
+} from "./combinationLock.js";
+import SoundManager from "./soundManager.js";
+import LoadingManagerWrapper from "./loadingManager.js";
 
 // Variables
 const loadingManagerWrapper = new LoadingManagerWrapper();
@@ -47,12 +48,11 @@ let currentBack = null; // The hallway that is behind (and will be repositioned)
 const hallwayLength = 32.518; // Exact Blender length
 let endDoor = null;
 let footstepsPlaying = false;
-let currentFootstepSound = null; 
+let currentFootstepSound = null;
 
 window.startScreenActive = true;
 window.endGameTriggered = false;
 window.allAssetsLoaded = false;
-
 
 //Audio
 const soundManager = new SoundManager(camera, manager);
@@ -61,43 +61,42 @@ soundManager.loadMainTheme("public/audio/thishouse-main.wav");
 soundManager.loadHallwayTheme("public/audio/thishouse-hallway.wav");
 //soundfx
 const fxFiles = [
-    "knock.mp3",
-    "door-open.mp3",
-    "pills.wav",
-    "sink-off.wav",
-    "sink-stream.wav",
-    "paper.wav"
-  ];
-  soundManager.loadSoundEffects(fxFiles, "public/audio/fx");
-  soundManager.loadFootstepSounds();
-
+  "knock.mp3",
+  "door-open.mp3",
+  "pills.wav",
+  "sink-off.wav",
+  "sink-stream.wav",
+  "paper.wav",
+];
+soundManager.loadSoundEffects(fxFiles, "public/audio/fx");
+soundManager.loadFootstepSounds();
 
 //Start handler
 function startGameHandler(event) {
-    if (event.key === " ") {
-      // Check that the main theme buffer is ready.
-      if (!window.allAssetsLoaded || !soundManager.mainTheme.buffer) {
-        console.log("Assets are still loading. Please wait.");
-        const startGamePrompt = document.getElementById("startGamePrompt");
-        if (startGamePrompt) {
-          startGamePrompt.textContent = "Loading, please wait...";
-        }
-        return; // Do not start the game yet.
+  if (event.key === " ") {
+    // Check that the main theme buffer is ready.
+    if (!window.allAssetsLoaded || !soundManager.mainTheme.buffer) {
+      console.log("Assets are still loading. Please wait.");
+      const startGamePrompt = document.getElementById("startGamePrompt");
+      if (startGamePrompt) {
+        startGamePrompt.textContent = "Loading, please wait...";
       }
-      // Resume the AudioContext if needed.
-      if (soundManager.listener.context.state === 'suspended') {
-        soundManager.listener.context.resume().then(() => {
-          console.log("AudioContext resumed");
-        });
-      }
-      soundManager.playMainTheme();
-      window.startScreenActive = false;
-      document.getElementById("startScreen").style.display = "none";
-      // Remove the listener to avoid duplicate calls.
-      document.removeEventListener("keydown", startGameHandler);
+      return; // Do not start the game yet.
     }
+    // Resume the AudioContext if needed.
+    if (soundManager.listener.context.state === "suspended") {
+      soundManager.listener.context.resume().then(() => {
+        console.log("AudioContext resumed");
+      });
+    }
+    soundManager.playMainTheme();
+    window.startScreenActive = false;
+    document.getElementById("startScreen").style.display = "none";
+    // Remove the listener to avoid duplicate calls.
+    document.removeEventListener("keydown", startGameHandler);
   }
-  // Attach it to the global window object.
+}
+// Attach it to the global window object.
 window.startGameHandler = startGameHandler;
 
 //items to inspect
@@ -107,7 +106,7 @@ const noteInspector = new ItemInspector({
   inspectDistance: 4,
   promptInspect: "Press Space to Inspect",
   promptExit: "Press Space to Exit",
-  soundEffect: "paper.wav"
+  soundEffect: "paper.wav",
 });
 
 const noteInspector2 = new ItemInspector({
@@ -116,7 +115,7 @@ const noteInspector2 = new ItemInspector({
   inspectDistance: 4,
   promptInspect: "Press Space to Inspect",
   promptExit: "Press Space to Exit",
-  soundEffect: "paper.wav"
+  soundEffect: "paper.wav",
 });
 
 const noteInspector3 = new ItemInspector({
@@ -125,7 +124,7 @@ const noteInspector3 = new ItemInspector({
   inspectDistance: 4,
   promptInspect: "Press Space to Inspect",
   promptExit: "Press Space to Exit",
-  soundEffect: "pills.wav"
+  soundEffect: "pills.wav",
 });
 
 // Setup scene and environment
@@ -251,14 +250,11 @@ const loadExterior = () => {
 
 // Check proximity to the exterior OR interior door
 const checkDoorInteraction = () => {
-   
-
   if (insideHouse === null || inInfiniteHallway) return;
 
   let promptShown = false;
 
   if (!insideHouse && exteriorDoor) {
-
     // Handle entering the house
     const doorWorldPosition = new THREE.Vector3();
     exteriorDoor.getWorldPosition(doorWorldPosition);
@@ -267,7 +263,7 @@ const checkDoorInteraction = () => {
 
     if (distance < 2) {
       showDoorPrompt("Press SPACE to Enter");
-      console.log("Showing Door prompt")
+      console.log("Showing Door prompt");
       promptShown = true;
       if (keys[" "]) {
         hideDoorPrompt();
@@ -342,9 +338,8 @@ const checkDoorInteraction = () => {
       promptShown = true;
 
       if (keys[" "]) {
-
         showCombinationLockUI();
-        
+
         // showCodeInput((enteredCode) => {
         //   if (enteredCode === correctCode) {
         //     console.log("✅ Code correct! Entering hallway...");
@@ -368,10 +363,19 @@ const checkDoorInteraction = () => {
 };
 
 const loadInfiniteHallway = () => {
-    soundManager.playSoundEffect("door-open.mp3");
-    hideDoorPrompt();
+  soundManager.playSoundEffect("door-open.mp3");
+  hideDoorPrompt();
   console.log("🚪 Entering infinite hallway...");
   inInfiniteHallway = true;
+
+  // Start the knock timer (30 seconds)
+  window.hallwayKnockTimer = setTimeout(() => {
+    // If the door hasn’t been loaded or triggered, play the knock sound.
+    if (!window.endGameTriggered && !endDoor) {
+      console.log("30 seconds passed in the hallway—playing knock sound.");
+      soundManager.playSoundEffect("knock.mp3");
+    }
+  }, 30000); // 30000 milliseconds = 30 seconds
 
   // Clear out the previous scene (except camera and renderer)
   scene.children
@@ -446,14 +450,13 @@ const loadInfiniteHallway = () => {
       console.error("❌ Error loading first hallway:", error);
     }
   );
-
 };
 
 function transitionToInfiniteHallway() {
-    soundManager.stopMainTheme();
-    soundManager.playHallwayTheme();
-    loadInfiniteHallway(); // Your existing function to transition the scene.
-  }
+  soundManager.stopMainTheme();
+  soundManager.playHallwayTheme();
+  loadInfiniteHallway(); // Your existing function to transition the scene.
+}
 
 window.transitionToInfiniteHallway = transitionToInfiniteHallway;
 
@@ -489,7 +492,7 @@ const checkCollision = (newPosition) => {
 };
 
 const checkEndDoorAppearance = () => {
-    if (window.endGameTriggered) return;
+  if (window.endGameTriggered) return;
   // Only run this logic when we are in the infinite hallway.
   if (!inInfiniteHallway) {
     if (endDoor) {
@@ -510,7 +513,6 @@ const checkEndDoorAppearance = () => {
   // If the camera is turned around (i.e. facing opposite the hallway's forward),
   // then load the door.
   if (cameraDir.dot(hallwayForward) < 0) {
-    
     // Use currentFront (the hallway segment the player is in) as our reference.
     if (!endDoor && currentFront) {
       const doorDistance = 4;
@@ -521,7 +523,7 @@ const checkEndDoorAppearance = () => {
       }
 
       let doorPos = new THREE.Vector3(
-        47.1-1.89, // Fixed x (hallway center)
+        47.1 - 1.89, // Fixed x (hallway center)
         -1, // Fixed y (to match other scenes)
         computedDoorZ // Subtract doorDistance from the camera's z
       );
@@ -534,42 +536,46 @@ const checkEndDoorAppearance = () => {
         "./public/Char/end-door2.glb",
         (gltf) => {
           // Assume gltf.scene is your door object.
-      const doorOriginal = gltf.scene;
-      
-      // Create a new group that will serve as the door's pivot.
-      const doorPivotGroup = new THREE.Group();
-      
-      // Compute the bounding box of the door.
-      const bbox = new THREE.Box3().setFromObject(doorOriginal);
-      const size = bbox.getSize(new THREE.Vector3());
-      
-      // For example, if you want the door to swing open from its left side,
-      // you want the pivot at the left edge. In the door's local space, if the door's
-      // geometry is centered, then the left edge is at -size.x/2.
-      // To shift the geometry so that its left edge aligns with the group's origin,
-      // move the door by +size.x/2 along the x-axis.
-      doorOriginal.position.x = size.x / 2;
-      
-      // Add the door model to the pivot group.
-      doorPivotGroup.add(doorOriginal);
-      
-      // Now, doorPivotGroup's origin (0,0,0) corresponds to the left edge of the door.
-      // Use doorPivotGroup as your endDoor.
-      endDoor = doorPivotGroup;
-      
-      // Set scale, position, and rotation as needed.
-      endDoor.scale.set(1, 1, 1);
-      endDoor.position.copy(doorPos);
-      // (Optional) Copy the rotation from currentFront so it aligns with the hallway.
-      endDoor.rotation.copy(currentFront.rotation);
-      scene.add(endDoor);
-      
-      console.log("✅ End door loaded at", doorPos);
+          const doorOriginal = gltf.scene;
+
+          // Create a new group that will serve as the door's pivot.
+          const doorPivotGroup = new THREE.Group();
+
+          // Compute the bounding box of the door.
+          const bbox = new THREE.Box3().setFromObject(doorOriginal);
+          const size = bbox.getSize(new THREE.Vector3());
+
+          // For example, if you want the door to swing open from its left side,
+          // you want the pivot at the left edge. In the door's local space, if the door's
+          // geometry is centered, then the left edge is at -size.x/2.
+          // To shift the geometry so that its left edge aligns with the group's origin,
+          // move the door by +size.x/2 along the x-axis.
+          doorOriginal.position.x = size.x / 2;
+
+          // Add the door model to the pivot group.
+          doorPivotGroup.add(doorOriginal);
+
+          // Now, doorPivotGroup's origin (0,0,0) corresponds to the left edge of the door.
+          // Use doorPivotGroup as your endDoor.
+          endDoor = doorPivotGroup;
+
+          // Set scale, position, and rotation as needed.
+          endDoor.scale.set(1, 1, 1);
+          endDoor.position.copy(doorPos);
+          // (Optional) Copy the rotation from currentFront so it aligns with the hallway.
+          endDoor.rotation.copy(currentFront.rotation);
+          scene.add(endDoor);
+
+          console.log("✅ End door loaded at", doorPos);
 
           // Show a door prompt (optional) so the player knows to press SPACE.
           showDoorPrompt("Press SPACE to Open");
 
-          
+          // Cancel the knock timer because the door is now loaded.
+          if (window.hallwayKnockTimer) {
+            clearTimeout(window.hallwayKnockTimer);
+            window.hallwayKnockTimer = null;
+          }
         },
         undefined,
         (error) => {
@@ -577,16 +583,15 @@ const checkEndDoorAppearance = () => {
         }
       );
     } else if (endDoor && !window.endGameTriggered) {
-        // If the end door is already loaded and visible, check for interaction.
-        // (For instance, the door prompt is already shown.)
-        if (keys[" "]) {
-          keys[" "] = false;
-          window.endGameTriggered = true;
-          // Trigger the end game transition:
-          triggerEndGameTransition();
-        }
+      // If the end door is already loaded and visible, check for interaction.
+      // (For instance, the door prompt is already shown.)
+      if (keys[" "]) {
+        keys[" "] = false;
+        window.endGameTriggered = true;
+        // Trigger the end game transition:
+        triggerEndGameTransition();
       }
-
+    }
   } else {
     // If the camera is not turned around, remove the door (if present).
     if (endDoor) {
@@ -624,15 +629,22 @@ function addCollisionOutlines(scene) {
 }
 
 function updateFootstepSound() {
-    //debugging
-    //console.log("insideHouse:", insideHouse, "inInfiniteHallway:", inInfiniteHallway);
+  //debugging
+  //console.log("insideHouse:", insideHouse, "inInfiniteHallway:", inInfiniteHallway);
 
-    // Determine if the player is moving (using your keys, for example)
-    const isMoving = keys["w"] || keys["a"] || keys["s"] || keys["d"] ||
-                     keys["ArrowUp"] || keys["ArrowDown"] || keys["ArrowLeft"] || keys["ArrowRight"];
-    
-    // Determine which footstep sound to play:
-    let desiredFootstep;
+  // Determine if the player is moving (using your keys, for example)
+  const isMoving =
+    keys["w"] ||
+    keys["a"] ||
+    keys["s"] ||
+    keys["d"] ||
+    keys["ArrowUp"] ||
+    keys["ArrowDown"] ||
+    keys["ArrowLeft"] ||
+    keys["ArrowRight"];
+
+  // Determine which footstep sound to play:
+  let desiredFootstep;
   if (inInfiniteHallway) {
     desiredFootstep = soundManager.footstepsHallway;
   } else if (insideHouse) {
@@ -640,8 +652,8 @@ function updateFootstepSound() {
   } else {
     desiredFootstep = soundManager.footstepsOutside;
   }
-    
-    // If the player is moving and the desired footstep sound is not already playing:
+
+  // If the player is moving and the desired footstep sound is not already playing:
   if (isMoving) {
     // If no footstep sound is currently playing, or the wrong one is playing:
     if (!footstepsPlaying || currentFootstepSound !== desiredFootstep) {
@@ -666,49 +678,49 @@ function updateFootstepSound() {
       currentFootstepSound = null;
     }
   }
-  }
+}
 
-  function triggerEndGameTransition() {
-    // Ensure the overlay is visible in the DOM.
-    const overlay = document.getElementById("endGameOverlay");
-    
-    // --- Animate the Door Swing ---
-    // Assume endDoor is your door model that has just been loaded.
-    // We want to rotate the door about its y-axis (for example, by 90 degrees).
-    // Adjust these values based on your door model’s pivot and desired effect.
-    const duration = 2000; // Duration in milliseconds (2 seconds)
-    const startRotation = endDoor.rotation.y;
-    const targetRotation = startRotation + Math.PI / 2; // Rotate 90° counterclockwise
-    const startTime = performance.now();
-  
-    function animateDoor(time) {
-      const elapsed = time - startTime;
-      const t = Math.min(elapsed / duration, 1); // Interpolation factor from 0 to 1
-      // Linear interpolation; you could use easing for smoother effect.
-      endDoor.rotation.y = startRotation + t * (targetRotation - startRotation);
-      if (t < 1) {
-        requestAnimationFrame(animateDoor);
-      }
+function triggerEndGameTransition() {
+  // Ensure the overlay is visible in the DOM.
+  const overlay = document.getElementById("endGameOverlay");
+
+  // --- Animate the Door Swing ---
+  // Assume endDoor is your door model that has just been loaded.
+  // We want to rotate the door about its y-axis (for example, by 90 degrees).
+  // Adjust these values based on your door model’s pivot and desired effect.
+  const duration = 2000; // Duration in milliseconds (2 seconds)
+  const startRotation = endDoor.rotation.y;
+  const targetRotation = startRotation + Math.PI / 2; // Rotate 90° counterclockwise
+  const startTime = performance.now();
+
+  function animateDoor(time) {
+    const elapsed = time - startTime;
+    const t = Math.min(elapsed / duration, 1); // Interpolation factor from 0 to 1
+    // Linear interpolation; you could use easing for smoother effect.
+    endDoor.rotation.y = startRotation + t * (targetRotation - startRotation);
+    if (t < 1) {
+      requestAnimationFrame(animateDoor);
     }
-    requestAnimationFrame(animateDoor);
-  
-    // --- Fade in the White Overlay ---
-    // Use CSS transitions to fade the overlay from transparent to opaque.
-    overlay.style.transition = "opacity 1.5s ease-in-out";
-    overlay.style.opacity = 1;
+  }
+  requestAnimationFrame(animateDoor);
 
-//     setTimeout(() => {
-//     const endGameText = document.getElementById("endGameText");
-//     endGameText.style.opacity = 1;
-//   }, 1500);  // Adjust delay as needed so it appears at the right time.
-  
+  // --- Fade in the White Overlay ---
+  // Use CSS transitions to fade the overlay from transparent to opaque.
+  overlay.style.transition = "opacity 1.5s ease-in-out";
+  overlay.style.opacity = 1;
+
+  //     setTimeout(() => {
+  //     const endGameText = document.getElementById("endGameText");
+  //     endGameText.style.opacity = 1;
+  //   }, 1500);  // Adjust delay as needed so it appears at the right time.
+
   // After the transition completes, you might restart the game.
   setTimeout(() => {
     // Reset state, e.g. reload the page:
     window.location.reload();
     // Or, if you have a game reset function, call it here.
   }, 4000); // Adjust duration as needed.
-  }
+}
 
 // Animation Loop
 const clock = new THREE.Clock();
@@ -749,4 +761,3 @@ const animate = () => {
   //   logSceneNames(scene);
 };
 animate();
-
