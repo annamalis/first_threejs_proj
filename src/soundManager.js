@@ -2,13 +2,13 @@
 import * as THREE from 'three';
 
 class SoundManager {
-  constructor(camera) {
+  constructor(camera, manager) {
     // Create an AudioListener and add it to the camera.
     this.listener = new THREE.AudioListener();
     camera.add(this.listener);
 
     // Create an AudioLoader.
-    this.audioLoader = new THREE.AudioLoader();
+    this.audioLoader = new THREE.AudioLoader(manager);
 
     // Create sound objects.
     this.mainTheme = new THREE.Audio(this.listener);

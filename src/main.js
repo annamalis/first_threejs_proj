@@ -25,15 +25,19 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { ItemInspector } from "./itemInspection.js";
 import { showCombinationLockUI, hideCombinationLockUI } from './combinationLock.js';
 import SoundManager from './soundManager.js';
+import LoadingManagerWrapper from './loadingManager.js';
+
 
 
 // Variables
+const loadingManagerWrapper = new LoadingManagerWrapper();
+const manager = loadingManagerWrapper.manager;
 const mixers = []; // Array to store all animation mixers
 let insideHouse = false;
 let interiorEnvironment = null; // Track the interior scene
 let livingDoor = null;
 let inInfiniteHallway = false;
-const gltfLoader = new GLTFLoader();
+const gltfLoader = new GLTFLoader(manager);
 const correctCode = "123"; // Our secret 3-digit code
 const hallwayInstances = []; // ✅ Store hallway segments for looping
 let hallwayA = null;
@@ -44,11 +48,15 @@ const hallwayLength = 32.518; // Exact Blender length
 let endDoor = null;
 let footstepsPlaying = false;
 let currentFootstepSound = null; 
+
 window.startScreenActive = true;
 window.endGameTriggered = false;
+window.allAssetsLoaded = false;
+
 
 //Audio
-const soundManager = new SoundManager(camera);
+const soundManager = new SoundManager(camera, manager);
+window.soundManager = soundManager;
 soundManager.loadMainTheme("public/audio/thishouse-main.wav");
 soundManager.loadHallwayTheme("public/audio/thishouse-hallway.wav");
 //soundfx
@@ -62,30 +70,35 @@ const fxFiles = [
   ];
   soundManager.loadSoundEffects(fxFiles, "public/audio/fx");
   soundManager.loadFootstepSounds();
-//debugging
-window.soundManager = soundManager;
 
-//Start button for testing audio
-document.addEventListener("keydown", function startGameHandler(event) {
-    if (event.key === " ") {  // SPACE key
-      // Optionally, resume AudioContext here if needed.
+
+//Start handler
+function startGameHandler(event) {
+    if (event.key === " ") {
+      // Check that the main theme buffer is ready.
+      if (!window.allAssetsLoaded || !soundManager.mainTheme.buffer) {
+        console.log("Assets are still loading. Please wait.");
+        const startGamePrompt = document.getElementById("startGamePrompt");
+        if (startGamePrompt) {
+          startGamePrompt.textContent = "Loading, please wait...";
+        }
+        return; // Do not start the game yet.
+      }
+      // Resume the AudioContext if needed.
       if (soundManager.listener.context.state === 'suspended') {
         soundManager.listener.context.resume().then(() => {
           console.log("AudioContext resumed");
         });
       }
-      // Start the main theme.
       soundManager.playMainTheme();
-
       window.startScreenActive = false;
-  
-      // Hide the start screen.
-      const startScreen = document.getElementById("startScreen");
-      startScreen.style.display = "none";
-      // Remove this event listener now that the game has started.
+      document.getElementById("startScreen").style.display = "none";
+      // Remove the listener to avoid duplicate calls.
       document.removeEventListener("keydown", startGameHandler);
     }
-  });
+  }
+  // Attach it to the global window object.
+window.startGameHandler = startGameHandler;
 
 //items to inspect
 const noteInspector = new ItemInspector({
@@ -612,7 +625,7 @@ function addCollisionOutlines(scene) {
 
 function updateFootstepSound() {
     //debugging
-    console.log("insideHouse:", insideHouse, "inInfiniteHallway:", inInfiniteHallway);
+    //console.log("insideHouse:", insideHouse, "inInfiniteHallway:", inInfiniteHallway);
 
     // Determine if the player is moving (using your keys, for example)
     const isMoving = keys["w"] || keys["a"] || keys["s"] || keys["d"] ||
