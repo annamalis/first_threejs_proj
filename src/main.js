@@ -374,7 +374,7 @@ const loadInfiniteHallway = () => {
 
   // Load the first hallway segment (Hallway A)
   gltfLoader.load(
-    "./public/Char/infin-hallwy2.glb",
+    "./public/Char/infin-hallwy3.glb",
     (gltf) => {
       hallwayA = gltf.scene;
       hallwayA.scale.set(1, 1, 1);
@@ -394,7 +394,7 @@ const loadInfiniteHallway = () => {
 
       // Now load the second hallway (Hallway B) behind it
       gltfLoader.load(
-        "./public/Char/infin-hallwy2.glb",
+        "./public/Char/infin-hallwy3.glb",
         (gltf2) => {
           hallwayB = gltf2.scene;
           hallwayB.scale.set(1, 1, 1);
@@ -518,7 +518,7 @@ const checkEndDoorAppearance = () => {
 
       // Load the door model.
       gltfLoader.load(
-        "./public/Char/end-door.glb",
+        "./public/Char/end-door2.glb",
         (gltf) => {
           // Assume gltf.scene is your door object.
       const doorOriginal = gltf.scene;
