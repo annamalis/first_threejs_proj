@@ -49,10 +49,15 @@ const hallwayLength = 32.518; // Exact Blender length
 let endDoor = null;
 let footstepsPlaying = false;
 let currentFootstepSound = null;
+let sinkWater = null;
+let sinkMixer = null;
+let waterDrainClip = null;
+let sinkAnimated = false;
 
 window.startScreenActive = true;
 window.endGameTriggered = false;
 window.allAssetsLoaded = false;
+window.instructionsShown = false;
 
 //Audio
 const soundManager = new SoundManager(camera, manager);
@@ -72,19 +77,19 @@ soundManager.loadSoundEffects(fxFiles, "public/audio/fx");
 soundManager.loadFootstepSounds();
 
 function showInstructions() {
-    const overlay = document.getElementById("instructionOverlay");
-    overlay.style.display = "flex"; // Show the overlay
-    
-    // Add a one-time listener for SPACE to dismiss instructions.
-    function dismissInstructions(event) {
-      if (event.key === " ") {
-        document.removeEventListener("keydown", dismissInstructions);
-        overlay.style.display = "none"; // Hide the overlay
-        startGame(); // Now start the game
-      }
+  const overlay = document.getElementById("instructionOverlay");
+  overlay.style.display = "flex"; // Show the overlay
+
+  // Add a one-time listener for SPACE to dismiss instructions.
+  function dismissInstructions(event) {
+    if (event.key === " ") {
+      document.removeEventListener("keydown", dismissInstructions);
+      overlay.style.display = "none"; // Hide the overlay
+      startGame(); // Now start the game
     }
-    document.addEventListener("keydown", dismissInstructions);
   }
+  document.addEventListener("keydown", dismissInstructions);
+}
 
 //Start handler
 function startGameHandler(event) {
@@ -110,14 +115,19 @@ function startGameHandler(event) {
     // Remove the listener to avoid duplicate calls.
     document.removeEventListener("keydown", startGameHandler);
 
-    showInstructions();
+    if (!window.instructionsShown) {
+        window.instructionsShown = true;
+        showInstructions();
+      }
   }
 }
 // Attach it to the global window object.
 window.startGameHandler = startGameHandler;
 
-
-
+function startGame() {
+    console.log("Game started!");
+    // Add any additional game initialization here.
+  }
 
 //items to inspect
 const noteInspector = new ItemInspector({
@@ -166,11 +176,11 @@ const loadInterior = () => {
     .forEach((obj) => scene.remove(obj));
 
   gltfLoader.load(
-    "./public/Char/house-interior2.glb",
+    "./public/Char/house-interior3.glb",
     (gltf) => {
       interiorEnvironment = gltf.scene; // ✅ Track the loaded interior
       interiorEnvironment.scale.set(1, 1, 1);
-      interiorEnvironment.position.set(0, -1, 0);
+      //interiorEnvironment.position.set(0, -1, 0);
       scene.add(interiorEnvironment);
 
       interiorEnvironment.traverse((child) => {
@@ -218,6 +228,33 @@ const loadInterior = () => {
 
       console.log("House interior loaded at:", interiorEnvironment.position);
       console.log("Camera moved inside house:", camera.position);
+
+      loadModelWithAnimations("./public/Char/sink-water.glb", 1)
+        .then((result) => {
+          // Directly assign to global variables
+          window.sinkWater = result.model;
+          window.sinkMixer = result.mixer;
+          window.waterDrainClip = result.animations.find(
+            (clip) => clip.name === "water-drain"
+          );
+          window.sinkAnimated = false;
+
+          // Re-center the model geometry:
+          const bbox = new THREE.Box3().setFromObject(window.sinkWater);
+          const center = new THREE.Vector3();
+          bbox.getCenter(center);
+          // Shift the sink so that its center is at (0,0,0)
+          window.sinkWater.position.sub(center);
+
+          // Now set the desired position in your interior
+          window.sinkWater.position.set(43.89, 1.75, 5.66);
+          scene.add(window.sinkWater);
+          mixers.push(window.sinkMixer);
+          console.log("Sink water model loaded with animation.");
+        })
+        .catch((error) => {
+          console.error("Error loading sink water model:", error);
+        });
     },
     undefined,
     (error) => {
@@ -742,6 +779,46 @@ function triggerEndGameTransition() {
   }, 4000); // Adjust duration as needed.
 }
 
+function checkSinkInteraction() {
+    if (window.sinkWater && !window.sinkAnimated) {
+      const sinkPos = new THREE.Vector3();
+      window.sinkWater.getWorldPosition(sinkPos);
+      const distance = camera.position.distanceTo(sinkPos);
+      const threshold = 3.5; // adjust as needed
+  
+      // Get the sink prompt element
+      const sinkPrompt = document.getElementById("sinkPrompt");
+  
+      if (distance < threshold) {
+        // Show the prompt
+        if (sinkPrompt) {
+          sinkPrompt.textContent = "SPACE to turn off";
+          sinkPrompt.style.display = "block";
+        }
+        // Check for player interaction
+        if (keys[" "]) {
+          // Hide the prompt and trigger the animation
+          if (sinkPrompt) {
+            sinkPrompt.style.display = "none";
+          }
+          const action = window.sinkMixer.clipAction(window.waterDrainClip);
+          action.reset();
+          action.setLoop(THREE.LoopOnce, 1);
+          action.clampWhenFinished = true;
+          action.play();
+          window.sinkAnimated = true;
+          console.log("Sink water animation triggered by interaction.");
+          keys[" "] = false; // Reset SPACE key to prevent immediate re-trigger
+        }
+      } else {
+        // If the player is too far, hide the prompt.
+        if (sinkPrompt) {
+          sinkPrompt.style.display = "none";
+        }
+      }
+    }
+  }
+
 // Animation Loop
 const clock = new THREE.Clock();
 const animate = () => {
@@ -763,6 +840,7 @@ const animate = () => {
   // ✅ Ensure door interaction check happens continuously
   checkDoorInteraction();
   checkEndDoorAppearance();
+  checkSinkInteraction();
 
   // Update the item inspector
   noteInspector.update(scene, camera);
