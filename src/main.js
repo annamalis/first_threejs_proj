@@ -39,7 +39,7 @@ let interiorEnvironment = null; // Track the interior scene
 let livingDoor = null;
 let inInfiniteHallway = false;
 const gltfLoader = new GLTFLoader(manager);
-const correctCode = "123"; // Our secret 3-digit code
+const correctCode = "403"; // Our secret 3-digit code
 const hallwayInstances = []; // ✅ Store hallway segments for looping
 let hallwayA = null;
 let hallwayB = null;
@@ -71,6 +71,21 @@ const fxFiles = [
 soundManager.loadSoundEffects(fxFiles, "public/audio/fx");
 soundManager.loadFootstepSounds();
 
+function showInstructions() {
+    const overlay = document.getElementById("instructionOverlay");
+    overlay.style.display = "flex"; // Show the overlay
+    
+    // Add a one-time listener for SPACE to dismiss instructions.
+    function dismissInstructions(event) {
+      if (event.key === " ") {
+        document.removeEventListener("keydown", dismissInstructions);
+        overlay.style.display = "none"; // Hide the overlay
+        startGame(); // Now start the game
+      }
+    }
+    document.addEventListener("keydown", dismissInstructions);
+  }
+
 //Start handler
 function startGameHandler(event) {
   if (event.key === " ") {
@@ -94,10 +109,15 @@ function startGameHandler(event) {
     document.getElementById("startScreen").style.display = "none";
     // Remove the listener to avoid duplicate calls.
     document.removeEventListener("keydown", startGameHandler);
+
+    showInstructions();
   }
 }
 // Attach it to the global window object.
 window.startGameHandler = startGameHandler;
+
+
+
 
 //items to inspect
 const noteInspector = new ItemInspector({

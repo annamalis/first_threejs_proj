@@ -71,7 +71,7 @@ function handleComboLockInput(event) {
     // Confirm the input. Concatenate the digits into a code.
     const code = comboLockState.digits.join("");
     // Replace "123" with your secret code.
-    if (code === "123") {
+    if (code === "403") {
       showDialogue("Code correct! Entering...");
       hideCombinationLockUI();
       // Here you would trigger the transition to the infinite hallway.
