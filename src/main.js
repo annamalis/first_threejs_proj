@@ -250,6 +250,19 @@ const loadInterior = () => {
           window.sinkWater.position.set(43.89, 1.75, 5.66);
           scene.add(window.sinkWater);
           mixers.push(window.sinkMixer);
+          
+          window.sinkStreamAudio = soundManager.attachPositionalAudioToObject(
+            window.sinkWater,
+            "public/audio/fx/sink-stream.wav",
+            {
+              loop: true,
+              volume: 2,
+              refDistance: 2,
+              maxDistance: 20,
+              distanceModel: "linear"
+            } 
+        );
+          
           console.log("Sink water model loaded with animation.");
         })
         .catch((error) => {
@@ -801,6 +814,10 @@ function checkSinkInteraction() {
           if (sinkPrompt) {
             sinkPrompt.style.display = "none";
           }
+          if (window.sinkStreamAudio && window.sinkStreamAudio.isPlaying) {
+            window.sinkStreamAudio.stop();
+          }
+          soundManager.playSoundEffect("sink-off.wav");
           const action = window.sinkMixer.clipAction(window.waterDrainClip);
           action.reset();
           action.setLoop(THREE.LoopOnce, 1);

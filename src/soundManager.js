@@ -164,6 +164,30 @@ class SoundManager {
     this.stopFootstepsHallway();
   }
 
+  attachPositionalAudioToObject(object, url, options = {}) {
+    const posAudio = new THREE.PositionalAudio(this.listener);
+    // Load the audio buffer from the given URL.
+    this.audioLoader.load(
+      url,
+      (buffer) => {
+        posAudio.setBuffer(buffer);
+        posAudio.setLoop(options.loop !== undefined ? options.loop : true);
+        posAudio.setVolume(options.volume !== undefined ? options.volume : 1);
+        posAudio.setRefDistance(options.refDistance !== undefined ? options.refDistance : 2);
+        posAudio.setMaxDistance(options.maxDistance !== undefined ? options.maxDistance : 10);
+        posAudio.setDistanceModel(options.distanceModel || "linear");
+        posAudio.play();
+      },
+      undefined,
+      (error) => {
+        console.error("Error loading positional audio:", error);
+      }
+    );
+    // Attach the positional audio to the object.
+    object.add(posAudio);
+    return posAudio;
+  }
+
 }
 
 export default SoundManager;
