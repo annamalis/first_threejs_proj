@@ -15,10 +15,14 @@ export function updateHUD() {
     hudElement.textContent = `Inventory: ${itemsString}`;
   }
 
-export function showDoorPrompt(message) {
+  export function showDoorPrompt(message, extraMessage = "") {
     const promptElement = document.getElementById('doorPrompt');
     if (promptElement) {
-      promptElement.textContent = message;
+      if (extraMessage.trim() !== "") {
+        promptElement.innerHTML = message + "<br>" + extraMessage;
+      } else {
+        promptElement.textContent = message;
+      }
       promptElement.style.display = 'block';
     }
   }
@@ -87,5 +91,19 @@ export function showDialogue(message) {
     const dialogueElement = document.getElementById('dialogueBox');
     if (dialogueElement) {
       dialogueElement.style.display = 'none';
+    }
+  }
+
+  export function showComboLockInstructions() {
+    const instr = document.getElementById("comboLockInstructions");
+    if (instr) {
+      instr.style.display = "block";
+    }
+  }
+  
+  export function hideComboLockInstructions() {
+    const instr = document.getElementById("comboLockInstructions");
+    if (instr) {
+      instr.style.display = "none";
     }
   }

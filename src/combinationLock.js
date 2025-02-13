@@ -1,4 +1,5 @@
 import { showDialogue } from "./inventoryHUD.js";
+import { hideComboLockInstructions } from "./inventoryHUD.js";
 
 // --- State for the combination lock ---
 const comboLockState = {
@@ -67,13 +68,14 @@ function handleComboLockInput(event) {
     // Down arrow: move the active slot down.
     comboLockState.activeSlot = (comboLockState.activeSlot + 1) % 3;
     updateComboLockUI();
-  } else if (event.key === "Enter") {
+  } else if (event.key === " ") {
     // Confirm the input. Concatenate the digits into a code.
     const code = comboLockState.digits.join("");
     // Replace "123" with your secret code.
     if (code === "403") {
       showDialogue("Code correct! Entering...");
       hideCombinationLockUI();
+      hideComboLockInstructions()
       // Here you would trigger the transition to the infinite hallway.
       window.transitionToInfiniteHallway();
     } else {
@@ -82,6 +84,7 @@ function handleComboLockInput(event) {
   } else if (event.key === "Escape") {
     // Cancel the combination lock UI.
     hideCombinationLockUI();
+    hideComboLockInstructions();
   }
 }
 

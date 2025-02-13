@@ -20,6 +20,8 @@ import {
   showDoorPrompt,
   hideDoorPrompt,
   showCodeInput,
+  showComboLockInstructions,
+  hideComboLockInstructions
 } from "./inventoryHUD.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { ItemInspector } from "./itemInspection.js";
@@ -67,7 +69,7 @@ soundManager.loadHallwayTheme("public/audio/thishouse-hallway.wav");
 //soundfx
 const fxFiles = [
   "knock.mp3",
-  "door-open.mp3",
+  "door-open.wav",
   "pills.wav",
   "sink-off.wav",
   "sink-stream.wav",
@@ -116,18 +118,18 @@ function startGameHandler(event) {
     document.removeEventListener("keydown", startGameHandler);
 
     if (!window.instructionsShown) {
-        window.instructionsShown = true;
-        showInstructions();
-      }
+      window.instructionsShown = true;
+      showInstructions();
+    }
   }
 }
 // Attach it to the global window object.
 window.startGameHandler = startGameHandler;
 
 function startGame() {
-    console.log("Game started!");
-    // Add any additional game initialization here.
-  }
+  console.log("Game started!");
+  // Add any additional game initialization here.
+}
 
 //items to inspect
 const noteInspector = new ItemInspector({
@@ -168,7 +170,7 @@ const loadInterior = () => {
   console.log("Transitioning to house interior...");
 
   //Play sound
-  soundManager.playSoundEffect("door-open.mp3");
+  soundManager.playSoundEffect("door-open.wav");
 
   // Remove only the exterior objects, keeping camera & lights
   scene.children
@@ -213,7 +215,7 @@ const loadInterior = () => {
       });
 
       // ✅ Move the camera inside the house
-      camera.position.set(35, 3, 0);
+      camera.position.set(35, 3.5, 0);
       //resetLighting();
 
       // ✅ Add Ambient Light
@@ -250,7 +252,7 @@ const loadInterior = () => {
           window.sinkWater.position.set(43.89, 1.75, 5.66);
           scene.add(window.sinkWater);
           mixers.push(window.sinkMixer);
-          
+
           window.sinkStreamAudio = soundManager.attachPositionalAudioToObject(
             window.sinkWater,
             "public/audio/fx/sink-stream.wav",
@@ -259,10 +261,10 @@ const loadInterior = () => {
               volume: 2,
               refDistance: 2,
               maxDistance: 20,
-              distanceModel: "linear"
-            } 
-        );
-          
+              distanceModel: "linear",
+            }
+          );
+
           console.log("Sink water model loaded with animation.");
         })
         .catch((error) => {
@@ -281,7 +283,7 @@ const loadInterior = () => {
 //Function to load exterior
 const loadExterior = () => {
   console.log("Transitioning to house exterior...");
-  soundManager.playSoundEffect("door-open.mp3");
+  soundManager.playSoundEffect("door-open.wav");
 
   // ✅ Prevents interactions for a short time
   insideHouse = null;
@@ -406,23 +408,12 @@ const checkDoorInteraction = () => {
     if (distance < 2) {
       showDoorPrompt("Press SPACE to Unlock");
       promptShown = true;
+      
 
       if (keys[" "]) {
         showCombinationLockUI();
-
-        // showCodeInput((enteredCode) => {
-        //   if (enteredCode === correctCode) {
-        //     console.log("✅ Code correct! Entering hallway...");
-        //     hideDoorPrompt();
-        //     loadInfiniteHallway();
-        //   } else {
-        //     console.log("❌ Incorrect code.");
-        //     alert("Incorrect code. Try again!");
-        //   }
-        // });
-
-        // ✅ RESET SPACE KEY so it doesn't trigger twice
         keys[" "] = false;
+        showComboLockInstructions();
       }
     }
   }
@@ -433,7 +424,7 @@ const checkDoorInteraction = () => {
 };
 
 const loadInfiniteHallway = () => {
-  soundManager.playSoundEffect("door-open.mp3");
+  soundManager.playSoundEffect("door-open.wav");
   hideDoorPrompt();
   console.log("🚪 Entering infinite hallway...");
   inInfiniteHallway = true;
@@ -457,7 +448,7 @@ const loadInfiniteHallway = () => {
   scene.fog = new THREE.Fog(0x000000, 0, 15);
 
   console.log(camera.position);
-  camera.position.set(47, 3, -31);
+  camera.position.set(47, 3.5, -31);
 
   // Load the first hallway segment (Hallway A)
   gltfLoader.load(
@@ -793,48 +784,48 @@ function triggerEndGameTransition() {
 }
 
 function checkSinkInteraction() {
-    if (window.sinkWater && !window.sinkAnimated) {
-      const sinkPos = new THREE.Vector3();
-      window.sinkWater.getWorldPosition(sinkPos);
-      const distance = camera.position.distanceTo(sinkPos);
-      const threshold = 3.5; // adjust as needed
-  
-      // Get the sink prompt element
-      const sinkPrompt = document.getElementById("sinkPrompt");
-  
-      if (distance < threshold) {
-        // Show the prompt
-        if (sinkPrompt) {
-          sinkPrompt.textContent = "SPACE to turn off";
-          sinkPrompt.style.display = "block";
-        }
-        // Check for player interaction
-        if (keys[" "]) {
-          // Hide the prompt and trigger the animation
-          if (sinkPrompt) {
-            sinkPrompt.style.display = "none";
-          }
-          if (window.sinkStreamAudio && window.sinkStreamAudio.isPlaying) {
-            window.sinkStreamAudio.stop();
-          }
-          soundManager.playSoundEffect("sink-off.wav");
-          const action = window.sinkMixer.clipAction(window.waterDrainClip);
-          action.reset();
-          action.setLoop(THREE.LoopOnce, 1);
-          action.clampWhenFinished = true;
-          action.play();
-          window.sinkAnimated = true;
-          console.log("Sink water animation triggered by interaction.");
-          keys[" "] = false; // Reset SPACE key to prevent immediate re-trigger
-        }
-      } else {
-        // If the player is too far, hide the prompt.
+  if (window.sinkWater && !window.sinkAnimated) {
+    const sinkPos = new THREE.Vector3();
+    window.sinkWater.getWorldPosition(sinkPos);
+    const distance = camera.position.distanceTo(sinkPos);
+    const threshold = 3.5; // adjust as needed
+
+    // Get the sink prompt element
+    const sinkPrompt = document.getElementById("sinkPrompt");
+
+    if (distance < threshold) {
+      // Show the prompt
+      if (sinkPrompt) {
+        sinkPrompt.textContent = "SPACE to turn off";
+        sinkPrompt.style.display = "block";
+      }
+      // Check for player interaction
+      if (keys[" "]) {
+        // Hide the prompt and trigger the animation
         if (sinkPrompt) {
           sinkPrompt.style.display = "none";
         }
+        if (window.sinkStreamAudio && window.sinkStreamAudio.isPlaying) {
+          window.sinkStreamAudio.stop();
+        }
+        soundManager.playSoundEffect("sink-off.wav");
+        const action = window.sinkMixer.clipAction(window.waterDrainClip);
+        action.reset();
+        action.setLoop(THREE.LoopOnce, 1);
+        action.clampWhenFinished = true;
+        action.play();
+        window.sinkAnimated = true;
+        console.log("Sink water animation triggered by interaction.");
+        keys[" "] = false; // Reset SPACE key to prevent immediate re-trigger
+      }
+    } else {
+      // If the player is too far, hide the prompt.
+      if (sinkPrompt) {
+        sinkPrompt.style.display = "none";
       }
     }
   }
+}
 
 // Animation Loop
 const clock = new THREE.Clock();

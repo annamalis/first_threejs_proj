@@ -133,6 +133,20 @@
   z-index: 5; /* Ensure they are above the digits */
 }
 
+#comboLockInstructions {
+    position: absolute;
+    bottom: 5%;  /* This is lower than the door prompt (which is at 10%) */
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-family: "Press Start 2P", cursive;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 8px;
+    border-radius: 4px;
+    display: none; /* Hidden by default */
+    z-index: 1001;
+  }
+
 #startScreen {
   position: fixed;
   top: 50%;
