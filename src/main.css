@@ -249,3 +249,19 @@
     transform: translate(-50%, -50%) skew(0deg);
   }
 }
+
+#endGameOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    opacity: 0;
+    z-index: 5000;
+    pointer-events: none;
+    transition: opacity 1.5s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }

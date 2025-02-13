@@ -649,8 +649,9 @@ const checkEndDoorAppearance = () => {
       if (keys[" "]) {
         keys[" "] = false;
         window.endGameTriggered = true;
-        // Trigger the end game transition:
-        triggerEndGameTransition();
+        // Capture a valid door reference before starting transition.
+        const doorToAnimate = endDoor;
+        triggerEndGameTransition(doorToAnimate);
       }
     }
   } else {
@@ -741,47 +742,82 @@ function updateFootstepSound() {
   }
 }
 
-function triggerEndGameTransition() {
-  // Ensure the overlay is visible in the DOM.
-  const overlay = document.getElementById("endGameOverlay");
-
-  // --- Animate the Door Swing ---
-  // Assume endDoor is your door model that has just been loaded.
-  // We want to rotate the door about its y-axis (for example, by 90 degrees).
-  // Adjust these values based on your door model’s pivot and desired effect.
-  const duration = 2000; // Duration in milliseconds (2 seconds)
-  const startRotation = endDoor.rotation.y;
-  const targetRotation = startRotation + Math.PI / 2; // Rotate 90° counterclockwise
-  const startTime = performance.now();
-
-  function animateDoor(time) {
-    const elapsed = time - startTime;
-    const t = Math.min(elapsed / duration, 1); // Interpolation factor from 0 to 1
-    // Linear interpolation; you could use easing for smoother effect.
-    endDoor.rotation.y = startRotation + t * (targetRotation - startRotation);
-    if (t < 1) {
-      requestAnimationFrame(animateDoor);
+function triggerEndGameTransition(door) {
+    if (!door) {
+      console.error("Door is undefined; triggering video immediately.");
+      playEndGameVideo();
+      return;
+    }
+    
+    const overlay = document.getElementById("endGameOverlay");
+    if (!overlay) {
+      console.error("endGameOverlay element not found!");
+      playEndGameVideo();
+      return;
+    }
+    
+    // Immediately start the overlay fade to white
+    overlay.style.transition = "opacity 0.5s ease-in-out";
+    overlay.style.opacity = 1;
+    
+    const duration = 2000; // Door swing duration
+    const startRotation = door.rotation.y;
+    const targetRotation = startRotation + Math.PI / 2; // Rotate 90°
+    const startTime = performance.now();
+  
+    function animateDoor(time) {
+      try {
+        const elapsed = time - startTime;
+        const t = Math.min(elapsed / duration, 1);
+        door.rotation.y = startRotation + t * (targetRotation - startRotation);
+        if (t < 1) {
+          requestAnimationFrame(animateDoor);
+        } else {
+          console.log("Door animation complete.");
+          // Remove the door and trigger the video transition.
+          scene.remove(door);
+          playEndGameVideo();
+        }
+      } catch (error) {
+        console.error("Error during door animation:", error);
+        playEndGameVideo();
+      }
+    }
+    requestAnimationFrame(animateDoor);
+  }
+  
+  function playEndGameVideo() {
+    console.log("playEndGameVideo() called");
+    const overlay = document.getElementById("endGameOverlay");
+    if (!overlay) {
+      console.error("endGameOverlay element not found!");
+      return;
+    }
+    
+    // Optionally, set muted to true during testing if autoplay issues occur.
+    let video = document.getElementById("endGameVideo");
+    if (!video) {
+      video = document.createElement("video");
+      video.id = "endGameVideo";
+      video.src = "public/char/end-vid.mp4"; // Verify the path is correct
+      video.style.width = "100%";
+      video.style.height = "100%";
+      video.autoplay = true;
+      video.playsInline = true;
+      // Uncomment the following line during testing if needed:
+      // video.muted = true;
+      video.onended = function () {
+        console.log("End game video ended, restarting game...");
+        window.location.reload();
+      };
+      overlay.appendChild(video);
+      console.log("Video element created and appended to overlay.");
+    } else {
+      video.currentTime = 0;
+      video.play();
+      console.log("Video element exists; reset and playing.");
     }
   }
-  requestAnimationFrame(animateDoor);
-
-  // --- Fade in the White Overlay ---
-  // Use CSS transitions to fade the overlay from transparent to opaque.
-  overlay.style.transition = "opacity 1.5s ease-in-out";
-  overlay.style.opacity = 1;
-
-  //     setTimeout(() => {
-  //     const endGameText = document.getElementById("endGameText");
-  //     endGameText.style.opacity = 1;
-  //   }, 1500);  // Adjust delay as needed so it appears at the right time.
-
-  // After the transition completes, you might restart the game.
-  setTimeout(() => {
-    // Reset state, e.g. reload the page:
-    window.location.reload();
-    // Or, if you have a game reset function, call it here.
-  }, 4000); // Adjust duration as needed.
-}
 
 function checkSinkInteraction() {
   if (window.sinkWater && !window.sinkAnimated) {
