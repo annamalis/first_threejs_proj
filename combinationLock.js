@@ -18,13 +18,13 @@ function updateComboLockUI() {
   // Update digit images using your file path structure.
   document.getElementById(
     "digitTop"
-  ).src = `public/char/lock/lock-top-${comboLockState.digits[0]}.png`;
+  ).src = `./public/char/lock/lock-top-${comboLockState.digits[0]}.png`;
   document.getElementById(
     "digitMid"
-  ).src = `public/char/lock/lock-mid-${comboLockState.digits[1]}.png`;
+  ).src = `./public/char/lock/lock-mid-${comboLockState.digits[1]}.png`;
   document.getElementById(
     "digitBot"
-  ).src = `public/char/lock/lock-bot-${comboLockState.digits[2]}.png`;
+  ).src = `./public/char/lock/lock-bot-${comboLockState.digits[2]}.png`;
 
   // Hide all arrow indicators.
   document.getElementById("arrowTop").style.display = "none";

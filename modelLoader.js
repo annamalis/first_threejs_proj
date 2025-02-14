@@ -1,4 +1,4 @@
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { GLTFLoader } from 'GLTFLoader';
 import * as THREE from 'three';
 import { scene } from './sceneSetup.js';
 import { collisionManager } from './collisionManager.js';

@@ -23,7 +23,7 @@ import {
   showComboLockInstructions,
   hideComboLockInstructions
 } from "./inventoryHUD.js";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { GLTFLoader } from 'GLTFLoader';
 import { ItemInspector } from "./itemInspection.js";
 import {
   showCombinationLockUI,

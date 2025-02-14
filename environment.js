@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { GLTFLoader } from 'GLTFLoader';
 import { scene } from "./sceneSetup.js";
 import { collisionManager } from "./collisionManager.js";
 
@@ -16,12 +16,12 @@ export const setInteriorDoor = (door) => {
 export const addEnvironment = () => {
   const loader = new THREE.CubeTextureLoader();
   const skyboxTexture = loader.load([
-    "/skybox_px.jpg",
-    "/skybox_nx.jpg",
-    "/skybox_nz.jpg",
-    "/skybox_pz.jpg",
-    "/skybox_py.jpg",
-    "/skybox_ny.jpg",
+    "./public/skybox_px.jpg",
+    "./public/skybox_nx.jpg",
+    "./public/skybox_nz.jpg",
+    "./public/skybox_pz.jpg",
+    "./public/skybox_py.jpg",
+    "./public/skybox_ny.jpg",
   ]);
   scene.background = skyboxTexture;
 
@@ -39,7 +39,7 @@ export const addEnvironment = () => {
 // Load Environment
   const gltfLoader = new GLTFLoader();
   gltfLoader.load(
-    "./public/Char/house-exterior4.glb",
+    "./public/char/house-exterior4.glb",
     (gltf) => {
       const environment = gltf.scene;
       environment.scale.set(1, 1, 1); // Adjust scale if needed
